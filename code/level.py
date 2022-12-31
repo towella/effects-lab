@@ -11,7 +11,6 @@ from player import Player
 from trigger import Trigger
 from spawn import Spawn
 # - systems -
-from camera import Camera
 from text import Font
 
 
@@ -32,32 +31,6 @@ class Level:
         self.pause_pressed = False
 
         dt = 1  # dt starts as 1 because on the first frame we can assume it is 60fps. dt = 1/60 * 60 = 1
-
-        # - get level data -
-        '''tmx_data = load_pygame(resource_path(level_data))  # tile map file
-        self.all_sprites = pygame.sprite.Group()  # contains all sprites for ease of updating/scrolling
-
-        # get objects
-        self.transitions = self.create_object_group(tmx_data, 'transitions', 'Trigger')
-        self.player_spawns = self.create_object_group(tmx_data, 'spawns', 'Spawn')
-        self.spawn_triggers = self.create_object_group(tmx_data, 'spawns', 'Trigger')
-        # self.player_spawn_triggers = self.create_object_group(tmx_data, 'spawns', 'Trigger')
-        self.player = self.create_object_group(tmx_data, '', 'Player')  # must be completed after player_spawns layer
-
-        # get tiles
-        self.collideable = self.create_tile_group(tmx_data, 'collideable', 'CollideableTile')
-        self.tiles_in_screen = []
-        self.hazards = self.create_tile_group(tmx_data, 'hazards', 'HazardTile')  # TODO hazard, what type?
-        self.abs_camera_boundaries = {}
-        self.abs_camera_boundaries['x'] = self.create_tile_group(tmx_data, 'abs camera boundaries x', 'CollideableTile')
-        self.abs_camera_boundaries['y'] = self.create_tile_group(tmx_data, 'abs camera boundaries y', 'CollideableTile')
-
-        # camera setup
-        self.camera = Camera(self.screen_surface, self.screen_rect, self.player.sprite, self.abs_camera_boundaries, controllers)
-        self.camera.focus(True)  # focuses camera on target
-        scroll_value = self.camera.return_scroll(dt, fps)  # returns scroll, now focused
-        self.player.sprite.apply_scroll(scroll_value)  # applies new scroll to player
-        self.all_sprites.update(scroll_value)  # applies new scroll to all sprites'''
 
         # text setup
         self.small_font = Font(resource_path(fonts['small_font']), 'white')
@@ -163,12 +136,16 @@ class Level:
 
 # -- menus --
 
+    def invoke_pause(self):
+        self.pause = True
+
     def pause_menu(self):
         pause_surf = pygame.Surface((self.screen_surface.get_width(), self.screen_surface.get_height()))
-        pause_surf.fill((40, 40, 40))
-        self.screen_surface.blit(pause_surf, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
-        width = self.large_font.width('PAUSED')
-        self.large_font.render('PAUSED', self.screen_surface, (center_object_x_surf(width, self.screen_surface), 20))
+        pause_surf.fill((20, 20, 20))
+        self.screen_surface.blit(pause_surf, (0, 0), special_flags=pygame.BLEND_RGB_SUB)
+        txt_surf = self.large_font.get_surf('PAUSED', 'black')
+        self.screen_surface.blit(txt_surf, (center_object_x_surf(txt_surf, self.screen_surface), 20))
+        #self.large_font.render('PAUSED', self.screen_surface, (center_object_x_surf(width, self.screen_surface), 20))
 
 # -------------------------------------------------------------------------------- #
 
@@ -184,11 +161,6 @@ class Level:
 
         # -- CHECKS (For the previous frame)  --
         if not self.pause:
-
-            # scroll -- must be first, camera calculates scroll, stores it and returns it for application
-            '''scroll_value = self.camera.return_scroll(dt, fps)
-            self.camera.focus(False)'''
-
             # which object should handle collision? https://gamedev.stackexchange.com/questions/127853/how-to-decide-which-gameobject-should-handle-the-collision
 
             # checks if player has collided with spawn trigger and updates spawn
@@ -226,4 +198,4 @@ class Level:
         # Dev Tools
         if self.dev_debug:
             '''put debug tools here'''
-            pygame.draw.line(self.screen_surface, 'red', (0, 0), (15, 15), 1)
+            pass

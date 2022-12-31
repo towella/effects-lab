@@ -200,8 +200,8 @@ def crop(surf, x, y, x_size, y_size):
 
 
 # centers an object with a given width on the x axis on a given surface
-def center_object_x_surf(width_obj, surf):
-    x = surf.get_width()//2 - width_obj//2
+def center_object_x_surf(subject_surf, blit_surf):
+    x = blit_surf.get_width()//2 - subject_surf.get_width()//2
     return x
 
 

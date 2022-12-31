@@ -95,6 +95,9 @@ def game():
                     running = False
                     pygame.quit()
                     sys.exit()
+                elif event.key == pygame.K_f:
+                    pygame.display.toggle_fullscreen()
+                    level.invoke_pause()
                 # TODO Test only, remove
                 elif event.key == pygame.K_x:
                     global game_speed
@@ -114,7 +117,7 @@ def game():
                     sys.exit()
 
         # -- Update --
-        screen.fill((15, 0, 34))
+        screen.fill((220, 220, 220))
         level.update(dt, fps)  # runs level processes
 
         font.render(f'FPS: {str(clock.get_fps())}', screen, (0, 0))

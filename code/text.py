@@ -26,9 +26,12 @@ def load_font_img(path, font_colour):
 
 
 class Font:
-    def __init__(self, path, colour):
-        self.letters, self.letter_spacing, self.line_height = load_font_img(path, colour)
-        self.font_order = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','.','-',',',':','+','\'','!','?','0','1','2','3','4','5','6','7','8','9','(',')','/','_','=','\\','[',']','*','"','<','>',';']
+    def __init__(self, path, colour, numbers=False):
+        self.letters, self.letter_spacing, self.line_height = load_font_img(resource_path(path), colour)
+        if not numbers:
+            self.font_order = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','.','-',',',':','+','\'','!','?','0','1','2','3','4','5','6','7','8','9','(',')','/','_','=','\\','[',']','*','"','<','>',';']
+        else:
+            self.font_order = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
         self.space_width = self.letter_spacing[0]  # width of 'A' character
         self.base_spacing = 1
         self.line_spacing = 2
@@ -66,7 +69,7 @@ class Font:
                 char_surf = self.letters[self.font_order.index(char)]
                 # outline per char
                 if outline_col != '':
-                    surf.blit(outline_image(char_surf, outline_col), (loc[0] + x_offset -1, loc[1] + y_offset -1))
+                    surf.blit(outline_image(char_surf, outline_col), (loc[0] + x_offset, loc[1] + y_offset))
                 else:
                     surf.blit(char_surf, (loc[0] + x_offset, loc[1] + y_offset))
                 x_offset += self.letter_spacing[self.font_order.index(char)] + self.base_spacing
@@ -75,3 +78,9 @@ class Font:
             else:
                 y_offset += self.line_spacing + self.line_height
                 x_offset = 0
+
+    def get_surf(self, text, outline_col='', line_width=0):
+        surface = pygame.Surface((self.width(text)+1, self.line_height))
+        surface.set_colorkey((0, 0, 0))
+        self.render(text, surface, (0, 0), outline_col, line_width)
+        return surface

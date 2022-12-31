@@ -1,5 +1,5 @@
 import pygame
-from support import import_folder, scale_hitbox
+from support import import_folder
 
 
 # base tile class with block fill image
@@ -11,11 +11,6 @@ class StaticTile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)  # postions the rect and image
         self.screen_width = pygame.display.Info().current_w
         self.screen_height = pygame.display.Info().current_h
-
-    # allows all tiles to scroll at a set speed creating camera illusion
-    def apply_scroll(self, scroll_value):
-        self.rect.x -= int(scroll_value[1])
-        self.rect.y -= int(scroll_value[0])
 
     # scroll is separate to update, giving control to children of Tile class to override update
     def update(self, scroll_value):
@@ -33,13 +28,6 @@ class CollideableTile(StaticTile):
         super().__init__(pos, size)  # passing in variables to parent class
         self.image = surface  # image is passed tile surface
         self.hitbox = self.image.get_rect()
-
-    # allows all tiles to scroll at a set speed creating camera illusion
-    def apply_scroll(self, scroll_value):
-        self.rect.x -= int(scroll_value[1])
-        self.rect.y -= int(scroll_value[0])
-        self.hitbox.midbottom = self.rect.midbottom
-
 
 class HazardTile(CollideableTile):
     def __init__(self, pos, size, surface, player):

@@ -21,7 +21,7 @@ class Player(pygame.sprite.Sprite):
         # - hitboxes -
         self.norm_hitbox = pygame.Rect(self.rect.midbottom[0], self.rect.midbottom[1], tile_size * 0.8, tile_size * 1.4)  # used for collisions
         self.crouch_hitbox = pygame.Rect(self.rect.midbottom[0], self.rect.midbottom[1], tile_size * 0.8, tile_size * 0.8)  # used for crouched collisions
-        self.hitbox = self.norm_hitbox  # used for collisiona and can be different to rect and image
+        self.hitbox = self.norm_hitbox  # used for collisions and can be different to rect and image
 
         if spawn.player_facing == 'right':
             self.facing_right = 1
@@ -135,34 +135,6 @@ class Player(pygame.sprite.Sprite):
 
         self.dash(dt)
 
-        #### vertical movement ####
-        # -- jump --
-        # input
-        if keys[pygame.K_w] or keys[pygame.K_SPACE] or self.get_controller_input('jump'):
-            # if jump wasnt previously pressed, allow jump (also dependent on other variable in function)
-            # set jump_pressed to true
-            # prevents continuous held jumps
-            if not self.jump_pressed:
-                self.jump_timer = 0  # set to 0 ready for next buffjump, used to prove not holding button
-                self.jump_hold_timer = 0
-            self.jump_pressed = True
-        # jump keys up
-        else:
-            self.jumping = False
-            self.jump_hold_timer = self.jump_max
-            self.jump_pressed = False
-
-        self.jump(dt)
-
-        # -- crouch --
-        # if wanting to crouch AND on the ground (so as to avoid glide)
-        if (keys[pygame.K_s] or self.get_controller_input('crouch')) and self.on_ground:
-            self.crouching = True
-        else:
-            self.crouching = False
-
-        self.crouch(tiles)
-
         # TODO testing, remove
         if keys[pygame.K_r] or self.get_controller_input('dev'):
             self.invoke_respawn()
@@ -261,75 +233,6 @@ class Player(pygame.sprite.Sprite):
         if (self.dashbuff_timer == 0) or self.buffer_dash:
             self.dashbuff_timer += round(1 * dt)
             self.buffer_dash = True
-
-    # physics maths from clearcode platformer tut (partly)
-    def jump(self, dt):
-        # -- coyote time --
-        if self.on_ground:
-            self.coyote_timer = 0  # resets timer on the ground
-        else:
-            self.coyote_timer += round(1 * dt)  # increments when not on the ground
-
-        # - reset -
-        if self.on_ground:
-            self.jumping = False
-        if self.on_ground or self.on_wall:
-            self.can_double_jump = True
-
-        # - execute initial hop and allow jump extension (norm, buffer and coyote) -
-        # if on the ground and want to jump
-        # OR on the ground and within buffer jump window,
-        # OR within coyote time window and want to jump
-        # OR double jump
-        elif (self.on_ground and self.jump_timer == 0) or \
-                (self.on_ground and self.jump_timer < self.jumpbuff_max) or \
-                (self.jump_timer == 0 and self.coyote_timer < self.coyote_max) or \
-                (self.jump_timer == 0 and self.can_double_jump):
-
-            # - double jump -
-            # if not on the ground and coyote window expired and has been able to jump,
-            # must be double jumping, so prevent more double jumps
-            if not self.on_ground and self.coyote_timer >= self.coyote_max:
-                self.can_double_jump = False
-                self.direction.y = 0
-
-            # - coyote -
-            self.coyote_timer = self.coyote_max  # prevents another coyote jump in mid air
-
-            # - buffer jump -
-            self.jump_hold_timer = 0  # Resets timer so buffjump has same extend window as norm.
-            self.jump_timer = self.jumpbuff_max  # prevents repeated unwanted buffer jumps.
-
-            # - norm jump - (start the jump)
-            self.on_ground = False  # neccessary to prevent direction being cancelled by gravity on ground code later in loop
-            self.direction.y = -self.jump_speed
-            self.jumping = True  # verifies that a jump is in progress
-
-        # - extend jump (variable height) -
-        # if already jumping (has hopped) and not exceeding max jump and want to jump still
-        elif self.jumping and self.jump_hold_timer < self.jump_max and self.jump_pressed:
-            self.direction.y = -self.jump_speed
-
-        self.jump_timer += round(1 * dt)  # increments the timer (time since jump input if jump hasnt been executed yet)
-        self.jump_hold_timer += round(1 * dt)  # increments timer (time jump has been held for)
-
-    def crouch(self, tiles):
-        if self.crouching:
-            # change to crouched hitbox and sync to the same pos as previous hitbox (using rect midbottom)
-            self.hitbox = self.crouch_hitbox
-            self.sync_hitbox()
-        # - exception case (if not crouching but should be forced to cause under platform) -
-        else:
-            # if normal hitbox top collides with a tile, make crouched
-            for tile in tiles:
-                if tile.hitbox.colliderect(self.norm_hitbox):
-                    if abs(tile.hitbox.bottom - self.norm_hitbox.top) < self.collision_tolerance:
-                        # change to crouched hitbox and sync to the same pos as previous hitbox (using rect midbottom)
-                        self.hitbox = self.crouch_hitbox
-                        self.sync_hitbox()
-                        self.crouching = True
-                        break
-
 
 # -- update methods --
 
@@ -492,15 +395,9 @@ class Player(pygame.sprite.Sprite):
     def sync_rect(self):
         self.rect.midbottom = self.hitbox.midbottom
 
-    def apply_scroll(self, scroll_value):
-        self.rect.x -= int(scroll_value[1])
-        self.rect.y -= int(scroll_value[0])
-        self.sync_hitbox()
-
     def update(self, dt, tiles, scroll_value, current_spawn):
-        self.terminal_vel = self.norm_terminal_vel  # resets terminal vel for next frame. Allows wall cling and glide to
         # reset without interfering with each other.
-        self.hitbox = self.norm_hitbox  # same with hitbox as terminal vel
+        self.hitbox = self.norm_hitbox
         self.sync_hitbox()  # just in case
 
         # respawns player if respawn has been evoked
@@ -525,9 +422,6 @@ class Player(pygame.sprite.Sprite):
         # applies direction to player then resyncs hitbox
         self.apply_y_direction(dt)  # gravity
         self.collision_y(self.hitbox, tiles)
-
-        # scroll shouldn't have collision applied, it is separate movement
-        self.apply_scroll(scroll_value)
 
         # light (after movement and scroll so pos is accurate)
         for light in self.lights:
