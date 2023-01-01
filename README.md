@@ -20,3 +20,4 @@ By Andrew Towell (2022 - 23)
 | M          | Decrease Tail  |
 | N          | Increase Tail  |
 | ',' or ESC | Quit           |
+| P          | Pause          |
