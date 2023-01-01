@@ -22,15 +22,14 @@ game_speed = 60
 # placed on and then resized to blit on the window. Allowing larger pixels (art pixel = game pixel)
 # https://stackoverflow.com/questions/54040397/pygame-rescale-pixel-size
 
-scaling_factor = 2.4  # how much the screen is scaled up before bliting on display
-
 # https://www.pygame.org/docs/ref/display.html#pygame.display.set_mode
 # https://www.reddit.com/r/pygame/comments/r943bn/game_stuttering/
 # vsync only works with scaled flag. Scaled flag will only work in combination with certain other flags.
 # although resizeable flag is present, window can not be resized, only fullscreened with vsync still on
 # vsync prevents screen tearing (multiple frames displayed at the same time creating a shuddering wave)
 # screen dimensions are cast to int to prevent float values being passed (-1 is specific to this game getting screen multiple of 16)
-window = pygame.display.set_mode((int(screen_width * scaling_factor) - 1, int(screen_height * scaling_factor)), pygame.RESIZABLE | pygame.DOUBLEBUF | pygame.SCALED, vsync=True)
+window = pygame.display.set_mode((int(screen_width * scaling_factor) - 1, int(screen_height * scaling_factor)), pygame.FULLSCREEN | pygame.SCALED, vsync=True)
+pygame.mouse.set_visible(False)
 
 # all pixel values in game logic should be based on the screen!!!! NO .display FUNCTIONS!!!!!
 screen = pygame.Surface((screen_width, screen_height))  # the display surface, re-scaled and blit to the window
@@ -64,7 +63,7 @@ def game():
     previous_time = time.time()
     fps = clock.get_fps()
 
-    level = Level(fps, 'room', screen, screen_rect, joysticks)
+    level = Level(pygame.mouse.get_pos(), screen, screen_rect)
 
     running = True
     while running:
@@ -95,16 +94,6 @@ def game():
                     running = False
                     pygame.quit()
                     sys.exit()
-                elif event.key == pygame.K_f:
-                    pygame.display.toggle_fullscreen()
-                    level.invoke_pause()
-                # TODO Test only, remove
-                elif event.key == pygame.K_x:
-                    global game_speed
-                    if game_speed == 60:
-                        game_speed = 20
-                    else:
-                        game_speed = 60
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
@@ -117,10 +106,8 @@ def game():
                     sys.exit()
 
         # -- Update --
-        screen.fill((220, 220, 220))
-        level.update(dt, fps)  # runs level processes
-
-        font.render(f'FPS: {str(clock.get_fps())}', screen, (0, 0))
+        screen.fill('white')
+        level.update(dt, fps, (mx, my))  # runs level processes
 
         window.blit(pygame.transform.scale(screen, window.get_rect().size), (0, 0))  # scale screen to window
 
