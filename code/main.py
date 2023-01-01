@@ -63,7 +63,7 @@ def game():
     previous_time = time.time()
     fps = clock.get_fps()
 
-    level = Level(fps, 'room', screen, screen_rect, joysticks)
+    level = Level(pygame.mouse.get_pos(), screen, screen_rect, joysticks)
 
     running = True
     while running:

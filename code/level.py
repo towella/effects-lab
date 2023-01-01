@@ -15,7 +15,7 @@ from text import Font
 
 
 class Level:
-    def __init__(self, fps, level_data, screen_surface, screen_rect, controllers):
+    def __init__(self, mouse_pos, screen_surface, screen_rect, controllers):
         # TODO testing, remove
         self.dev_debug = False
 
@@ -35,7 +35,7 @@ class Level:
 
         dt = 1  # dt starts as 1 because on the first frame we can assume it is 60fps. dt = 1/60 * 60 = 1
 
-        self.player = Player((0, 0), self.mask_surf, self.controllers)
+        self.player = Player(mouse_pos, self.mask_surf, self.controllers)
 
         # text setup
         self.small_font = Font(resource_path(fonts['small_font']), 'white')

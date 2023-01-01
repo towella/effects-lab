@@ -17,8 +17,7 @@ class Player(pygame.sprite.Sprite):
         # circle = (radius, (posx, posy)) <- pos is top left NOT center
         self.circles = [[self.start_radius, [self.rect.centerx, self.rect.centery]]]
         self.smallest_circle = 6
-
-        self.lights = [Light(self.surface, self.rect.center, (10, 10, 10), False, 30, 20, 0.02)]
+        self.subtract_r = 0.4
 
         # - hitbox -
         self.hitbox = pygame.Rect(spawn[0], spawn[1], self.start_radius, self.start_radius)
@@ -31,10 +30,9 @@ class Player(pygame.sprite.Sprite):
         self.collision_tolerance = tile_size
         self.corner_correction = 8  # tolerance for correcting player on edges of tiles (essentially rounded corners)
 
-        # - walk -
-        self.speed_x = 2.5
-        self.right_pressed = False
-        self.left_pressed = False
+        self.gravity = 2
+        self.apply_gravity = False
+        self.gravity_pressed = False
 
         # - dash -
         self.dashing = False  # NOT REDUNDANT. IS NECCESSARY. Allows resetting timer while dashing. Also more readable code
@@ -54,6 +52,20 @@ class Player(pygame.sprite.Sprite):
         self.direction.x = 0
         keys = pygame.key.get_pressed()
 
+        if keys[pygame.K_m]:
+            self.subtract_r += 0.05 * dt
+        if keys[pygame.K_n]:
+            self.subtract_r -= 0.05 * dt
+
+        if keys[pygame.K_g] and not self.gravity_pressed:
+            self.apply_gravity = not self.apply_gravity
+            self.gravity_pressed = True
+        elif not keys[pygame.K_g]:
+            self.gravity_pressed = False
+
+        if self.subtract_r < 0:
+            self.subtract_r = 0
+
         # -- dash --
         # if wanting to dash and not holding the button
         '''if (keys[pygame.K_PERIOD] or self.get_controller_input('dash')) and not self.dash_pressed:
@@ -68,10 +80,6 @@ class Player(pygame.sprite.Sprite):
             self.dash_pressed = False
 
         self.dash(dt)'''
-
-        # TODO testing, remove
-        if keys[pygame.K_r] or self.get_controller_input('dev'):
-            self.invoke_respawn()
 
     # checks controller inputs and returns true or false based on passed check
     # pygame controller docs: https://www.pygame.org/docs/ref/joystick.html
@@ -292,13 +300,8 @@ class Player(pygame.sprite.Sprite):
 
     # application of y direction
     def apply_y_direction(self, dt):
-        y_move = round(self.direction.y * dt)
-
-        self.rect.y += y_move
-        self.sync_hitbox()
-
-        for circle in self.circles:
-            circle[1][1] += y_move
+        for circle in range(len(self.circles)):
+            self.circles[circle][1][1] += round(self.gravity * dt)
 
     # syncs the player's current and stored hitboxes with the player rect for proper collisions. For use after movement of player rect.
     def sync_hitbox(self):
@@ -318,12 +321,15 @@ class Player(pygame.sprite.Sprite):
 
         r_circles = []
         for circle in range(len(self.circles)):
-            self.circles[circle][0] -= 0.8
+            self.circles[circle][0] -= self.subtract_r * dt
             if self.circles[circle][0] < self.smallest_circle:
-                r_circles.append(circle)
+                r_circles.append(self.circles[circle])
         for circle in r_circles:
-            self.circles.pop(circle)
+            self.circles.remove(circle)
         self.circles.append([self.start_radius, [self.rect.centerx, self.rect.centery]])
+
+        if self.apply_gravity:
+            self.apply_y_direction(dt)
 
         # -- CHECKS/UPDATE --
 
@@ -331,25 +337,12 @@ class Player(pygame.sprite.Sprite):
         # applies direction to player then resyncs hitbox (included in most movement/collision functions)
         # HITBOX MUST BE SYNCED AFTER EVERY MOVE OF PLAYER RECT
         # x and y collisions are separated to make diagonal collisions easier and simpler to handle
-        # x
-        self.apply_x_direction(dt)
         self.collision_x(self.hitbox, tiles)
-
-        # y
-        # applies direction to player then resyncs hitbox
-        self.apply_y_direction(dt)  # gravity
         self.collision_y(self.hitbox, tiles)
-
-        # light (after movement and scroll so pos is accurate)
-        for light in self.lights:
-            light.update(dt, self.rect.center, tiles)
 
 # -- visual methods --
 
     def draw(self):
-        for light in self.lights:
-            light.draw()
-
         for circle in self.circles:
             pygame.draw.circle(self.surface, 'red', circle[1], circle[0])
 
