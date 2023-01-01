@@ -16,6 +16,7 @@ class Player(pygame.sprite.Sprite):
 
         # circle = (radius, (posx, posy)) <- pos is top left NOT center
         self.circles = [[self.start_radius, [self.rect.centerx, self.rect.centery]]]
+        self.smallest_circle = 6
 
         self.lights = [Light(self.surface, self.rect.center, (10, 10, 10), False, 30, 20, 0.02)]
 
@@ -318,7 +319,7 @@ class Player(pygame.sprite.Sprite):
         r_circles = []
         for circle in range(len(self.circles)):
             self.circles[circle][0] -= 0.8
-            if self.circles[circle][0] < 3:
+            if self.circles[circle][0] < self.smallest_circle:
                 r_circles.append(circle)
         for circle in r_circles:
             self.circles.pop(circle)
