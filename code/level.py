@@ -25,12 +25,18 @@ class Level:
         self.screen_width = screen_surface.get_width()
         self.screen_height = screen_surface.get_height()
 
+        self.mask_surf = pygame.Surface((self.screen_width, self.screen_height))
+        self.mask_surf.set_colorkey((0, 0, 0))
+
         self.controllers = controllers
 
         self.pause = False
         self.pause_pressed = False
 
         dt = 1  # dt starts as 1 because on the first frame we can assume it is 60fps. dt = 1/60 * 60 = 1
+
+        player_spawn = (self.screen_width//2, self.screen_height//2)
+        self.player = Player(player_spawn, self.mask_surf, self.controllers)
 
         # text setup
         self.small_font = Font(resource_path(fonts['small_font']), 'white')
@@ -134,6 +140,13 @@ class Level:
             if self.dev_debug:
                 pygame.draw.rect(self.screen_surface, 'green', tile.hitbox, 1)
 
+    def make_mask(self):
+        mask = pygame.mask.from_surface(self.mask_surf)
+        mask = mask.to_surface()
+        mask.set_colorkey((255, 255, 255))
+        mask = outline_image(mask, 'black')
+        return mask
+
 # -- menus --
 
     def invoke_pause(self):
@@ -151,7 +164,7 @@ class Level:
 
     # updates the level allowing tile scroll and displaying tiles to screen
     # order is equivalent of layers
-    def update(self, dt, fps):
+    def update(self, dt, fps, mouse_pos):
         # #### INPUT > GAME(checks THEN UPDATE) > RENDER ####
         # checks deal with previous frames interactions. Update creates interactions for this frame which is then diplayed
         '''player = self.player.sprite'''
@@ -182,14 +195,18 @@ class Level:
 
         # -- UPDATES -- player needs to be before tiles for scroll to function properly
             # TODO IF TILES_IN_SCREEN ATTR IS CHANGED TO INCLUDE MORE LAYERS, CHANGE BACK TO self.collideable HERE!!!!
-            '''player.update(dt, self.tiles_in_screen, scroll_value, self.player_spawn)
-            self.all_sprites.update(scroll_value)'''
+            self.player.update(mouse_pos, dt, pygame.sprite.Group())
+            '''self.all_sprites.update(scroll_value)'''
 
         # -- RENDER --
         # Draw
-        '''self.player.sprite.draw()
-        self.draw_tile_group(self.collideable)
+        self.player.draw()
+        '''self.draw_tile_group(self.collideable)
         self.draw_tile_group(self.hazards)'''
+
+        self.screen_surface.blit(self.make_mask(), (-1, -1))
+        self.mask_surf.fill('black')
+        self.mask_surf.set_colorkey('black')
 
         # must be after other renders to ensure menu is drawn last
         if self.pause:

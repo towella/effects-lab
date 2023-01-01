@@ -22,8 +22,6 @@ game_speed = 60
 # placed on and then resized to blit on the window. Allowing larger pixels (art pixel = game pixel)
 # https://stackoverflow.com/questions/54040397/pygame-rescale-pixel-size
 
-scaling_factor = 2.4  # how much the screen is scaled up before bliting on display
-
 # https://www.pygame.org/docs/ref/display.html#pygame.display.set_mode
 # https://www.reddit.com/r/pygame/comments/r943bn/game_stuttering/
 # vsync only works with scaled flag. Scaled flag will only work in combination with certain other flags.
@@ -117,10 +115,8 @@ def game():
                     sys.exit()
 
         # -- Update --
-        screen.fill((220, 220, 220))
-        level.update(dt, fps)  # runs level processes
-
-        font.render(f'FPS: {str(clock.get_fps())}', screen, (0, 0))
+        screen.fill('white')
+        level.update(dt, fps, (mx, my))  # runs level processes
 
         window.blit(pygame.transform.scale(screen, window.get_rect().size), (0, 0))  # scale screen to window
 
