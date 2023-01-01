@@ -315,8 +315,13 @@ class Player(pygame.sprite.Sprite):
         self.rect.centerx = mouse_pos[0]//scaling_factor
         self.rect.centery = mouse_pos[1]//scaling_factor
 
+        r_circles = []
         for circle in range(len(self.circles)):
-            self.circles[circle][0] -= 1
+            self.circles[circle][0] -= 0.8
+            if self.circles[circle][0] < 3:
+                r_circles.append(circle)
+        for circle in r_circles:
+            self.circles.pop(circle)
         self.circles.append([self.start_radius, [self.rect.centerx, self.rect.centery]])
 
         # -- CHECKS/UPDATE --

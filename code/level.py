@@ -35,8 +35,7 @@ class Level:
 
         dt = 1  # dt starts as 1 because on the first frame we can assume it is 60fps. dt = 1/60 * 60 = 1
 
-        player_spawn = (self.screen_width//2, self.screen_height//2)
-        self.player = Player(player_spawn, self.mask_surf, self.controllers)
+        self.player = Player((0, 0), self.mask_surf, self.controllers)
 
         # text setup
         self.small_font = Font(resource_path(fonts['small_font']), 'white')
