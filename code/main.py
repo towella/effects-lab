@@ -63,7 +63,7 @@ def game():
     previous_time = time.time()
     fps = clock.get_fps()
 
-    level = Level(pygame.mouse.get_pos(), screen, screen_rect, joysticks)
+    level = Level(pygame.mouse.get_pos(), screen, screen_rect)
 
     running = True
     while running:
@@ -94,13 +94,6 @@ def game():
                     running = False
                     pygame.quit()
                     sys.exit()
-                # TODO Test only, remove
-                elif event.key == pygame.K_x:
-                    global game_speed
-                    if game_speed == 60:
-                        game_speed = 20
-                    else:
-                        game_speed = 60
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:

@@ -5,10 +5,9 @@ from support import pos_for_center
 
 # SET UP FOR PLATFORMER SINCE PLATFORMERS ARE HARDER TO CREATE A PLAYER FOR
 class Player(pygame.sprite.Sprite):
-    def __init__(self, spawn, surface, controllers):
+    def __init__(self, spawn, surface):
         super().__init__()
         self.surface = surface
-        self.controllers = controllers
 
         # -- player setup --
         self.start_radius = 20
@@ -80,40 +79,6 @@ class Player(pygame.sprite.Sprite):
             self.dash_pressed = False
 
         self.dash(dt)'''
-
-    # checks controller inputs and returns true or false based on passed check
-    # pygame controller docs: https://www.pygame.org/docs/ref/joystick.html
-    def get_controller_input(self, input_check):
-        # self.controller.get_hat(0) returns tuple (x, y) for d-pad where 0, 0 is centered, -1 = left or down, 1 = right or up
-        # the 0 refers to the dpad on the controller
-
-        # check if controllers are connected before getting controller input (done every frame preventing error if suddenly disconnected)
-        if len(self.controllers) > 0:
-            controller = self.controllers[0]
-            if input_check == 'jump' and controller.get_button(controller_map['X']):
-                return True
-            elif input_check == 'right':
-                if controller.get_hat(0)[0] == 1 or (0.2 < controller.get_axis(controller_map['left_analog_x']) <= 1):
-                    return True
-            elif input_check == 'left':
-                if controller.get_hat(0)[0] == -1 or (-0.2 > controller.get_axis(controller_map['left_analog_x']) >= -1):
-                    return True
-                '''elif input_check == 'up':
-                    if controller.get_hat(0)[1] == 1 or (-0.2 > controller.get_axis(controller_map['left_analog_y']) >= -1):
-                        return True
-                elif input_check == 'down':
-                    if controller.get_hat(0)[1] == -1 or (0.2 < controller.get_axis(controller_map['left_analog_y']) <= 1):
-                        return True'''
-            elif input_check == 'dash' and controller.get_button(controller_map['R2']) > 0.8:
-                return True
-            elif input_check == 'glide' and (controller.get_button(controller_map['L1']) or controller.get_hat(0)[1] == -1):
-                return True
-            elif input_check == 'crouch' and (controller.get_hat(0)[1] == -1 or 0.2 < controller.get_axis(controller_map['left_analog_y']) <= 1):  # TODO crouch controls
-                return True
-            # TODO testing, remove
-            elif input_check == 'dev' and controller.get_button(controller_map['right_analog_press']):
-                return True
-        return False
 
     # - respawn -
 

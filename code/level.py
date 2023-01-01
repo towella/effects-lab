@@ -15,10 +15,7 @@ from text import Font
 
 
 class Level:
-    def __init__(self, mouse_pos, screen_surface, screen_rect, controllers):
-        # TODO testing, remove
-        self.dev_debug = False
-
+    def __init__(self, mouse_pos, screen_surface, screen_rect):
         # level setup
         self.screen_surface = screen_surface  # main screen surface
         self.screen_rect = screen_rect
@@ -28,14 +25,12 @@ class Level:
         self.mask_surf = pygame.Surface((self.screen_width, self.screen_height))
         self.mask_surf.set_colorkey((0, 0, 0))
 
-        self.controllers = controllers
-
         self.pause = False
         self.pause_pressed = False
 
         dt = 1  # dt starts as 1 because on the first frame we can assume it is 60fps. dt = 1/60 * 60 = 1
 
-        self.player = Player(mouse_pos, self.mask_surf, self.controllers)
+        self.player = Player(mouse_pos, self.mask_surf)
 
         # text setup
         self.small_font = Font(resource_path(fonts['small_font']), 'white')
@@ -85,7 +80,7 @@ class Level:
             sprite_group = pygame.sprite.GroupSingle()
             # finds the correct starting position corresponding to the last room/transition
             spawn = (0, 0)
-            player = Player(spawn, self.screen_surface, self.controllers)
+            player = Player(spawn, self.screen_surface)
             sprite_group.add(player)
         else:
             raise Exception(f"Invalid create_object_group type: '{type}' ")
@@ -98,35 +93,13 @@ class Level:
         keys = pygame.key.get_pressed()
 
         # pause pressed prevents holding key and rapidly switching between T and F
-        if keys[pygame.K_p] or self.get_controller_input('pause'):
+        if keys[pygame.K_p]:
             if not self.pause_pressed:
                 self.pause = not self.pause
             self.pause_pressed = True
         # if not pressed
         else:
             self.pause_pressed = False
-
-
-        # TODO testing, remove
-        if (keys[pygame.K_z] and keys[pygame.K_LSHIFT]) or self.get_controller_input('dev off'):
-            self.dev_debug = False
-        elif keys[pygame.K_z] or self.get_controller_input('dev on'):
-            self.dev_debug = True
-
-    # checks controller inputs and returns true or false based on passed check
-    def get_controller_input(self, input_check):
-        # check if controllers are connected before getting controller input (done every frame preventing error if suddenly disconnected)
-        if len(self.controllers) > 0:
-            controller = self.controllers[0]
-            # TODO testing, remove
-            if input_check == 'dev on' and controller.get_button(controller_map['share']):
-                return True
-            elif input_check == 'dev off' and controller.get_button(controller_map['share']) and controller.get_button(controller_map['X']):
-                return True
-
-            elif input_check == 'pause' and controller.get_button(controller_map['options']):
-                return True
-        return False
 
 # -- visual --
 
@@ -135,9 +108,6 @@ class Level:
         for tile in group:
             # render tile
             tile.draw(self.screen_surface, self.screen_rect)
-            # TODO testing, remove
-            if self.dev_debug:
-                pygame.draw.rect(self.screen_surface, 'green', tile.hitbox, 1)
 
     def make_mask(self):
         mask = pygame.mask.from_surface(self.mask_surf)
@@ -210,8 +180,3 @@ class Level:
         # must be after other renders to ensure menu is drawn last
         if self.pause:
             self.pause_menu()
-
-        # Dev Tools
-        if self.dev_debug:
-            '''put debug tools here'''
-            pass
