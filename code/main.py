@@ -29,6 +29,7 @@ game_speed = 60
 # vsync prevents screen tearing (multiple frames displayed at the same time creating a shuddering wave)
 # screen dimensions are cast to int to prevent float values being passed (-1 is specific to this game getting screen multiple of 16)
 window = pygame.display.set_mode((int(screen_width * scaling_factor) - 1, int(screen_height * scaling_factor)), pygame.FULLSCREEN | pygame.SCALED, vsync=True)
+pygame.mouse.set_visible(False)
 
 # all pixel values in game logic should be based on the screen!!!! NO .display FUNCTIONS!!!!!
 screen = pygame.Surface((screen_width, screen_height))  # the display surface, re-scaled and blit to the window
