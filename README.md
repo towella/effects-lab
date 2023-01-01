@@ -11,3 +11,12 @@ By Andrew Towell (2022 - 23)
 - pygame 2.0.1
 - pyinstaller 5.1
 - generate-iconset 1.2.0
+
+## Controls
+| Key(s)     | Function       |
+|------------|----------------|
+| Move Mouse | Move Orb       |
+| G          | Toggle Gravity |
+| M          | Decrease Tail  |
+| N          | Increase Tail  |
+| ',' or ESC | Quit           |
