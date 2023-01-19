@@ -28,6 +28,9 @@ class Level:
         self.pause = False
         self.pause_pressed = False
 
+        self.settings = False
+        self.settings_pressed = False
+
         dt = 1  # dt starts as 1 because on the first frame we can assume it is 60fps. dt = 1/60 * 60 = 1
 
         self.player = Player(mouse_pos, self.mask_surf)
@@ -92,14 +95,21 @@ class Level:
     def get_input(self):
         keys = pygame.key.get_pressed()
 
-        # pause pressed prevents holding key and rapidly switching between T and F
+        # pause menu
         if keys[pygame.K_p]:
             if not self.pause_pressed:
                 self.pause = not self.pause
             self.pause_pressed = True
-        # if not pressed
         else:
             self.pause_pressed = False
+
+        # settings menu
+        '''if keys[pygame.K_o]:
+            if not self.settings_pressed:
+                self.settings = not self.settings
+            self.settings_pressed = True
+        else:
+            self.settings_pressed = False'''
 
 # -- visual --
 
