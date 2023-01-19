@@ -1,6 +1,7 @@
 import pygame
 from game_data import tile_size, controller_map, scaling_factor
 from random import randint
+from math import sin
 from lighting import Light
 from support import pos_for_center
 
@@ -34,6 +35,14 @@ class Player(pygame.sprite.Sprite):
         self.apply_gravity = False
         self.gravity_pressed = False
 
+        self.flamey = 3  # flame tail size (constant upward force)
+        self.flame_width = 3  # flame tail x force constant
+        self.flame_speed = 0.2  # speed of flame sine wave
+        self.flame_volume = 2  # amount of x randomness per particle
+        self.flame_timer = 0
+        self.apply_flame = False
+        self.flame_pressed = False
+
         # - dash -
         self.dashing = False  # NOT REDUNDANT. IS NECCESSARY. Allows resetting timer while dashing. Also more readable code
         self.dash_speed = 4
@@ -53,20 +62,52 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
 
         # tail size
-        if keys[pygame.K_m]:
-            self.subtract_r += 0.05 * dt
-        if keys[pygame.K_n]:
-            self.subtract_r -= 0.05 * dt
+        if keys[pygame.K_x]:
+            self.subtract_r -= 0.02 * dt
+        elif keys[pygame.K_z]:
+            self.subtract_r += 0.02 * dt
+        if self.subtract_r < 0:
+            self.subtract_r = 0
+
+        # flame speed
+        if keys[pygame.K_s]:
+            self.flame_speed += 0.005 * dt
+        elif keys[pygame.K_a]:
+            self.flame_speed -= 0.005 * dt
+        if self.flame_speed < 0:
+            self.flame_speed = 0
+
+        # flame volume
+        if keys[pygame.K_w]:
+            self.flame_volume += 0.5 * dt
+        elif keys[pygame.K_q]:
+            self.flame_volume -= 0.5 * dt
+        if self.flame_volume < 0:
+            self.flame_volume = 0
+
+        # flame width
+        if keys[pygame.K_r]:
+            self.flame_width += 0.2
+        elif keys[pygame.K_e]:
+            self.flame_width -= 0.2
+        if self.flame_width < 0:
+            self.flame_width = 0
 
         # gravity
         if keys[pygame.K_g] and not self.gravity_pressed:
             self.apply_gravity = not self.apply_gravity
+            self.apply_flame = False
             self.gravity_pressed = True
         elif not keys[pygame.K_g]:
             self.gravity_pressed = False
 
-        if self.subtract_r < 0:
-            self.subtract_r = 0
+        # flame
+        if keys[pygame.K_f] and not self.flame_pressed:
+            self.apply_flame = not self.apply_flame
+            self.apply_gravity = False
+            self.flame_pressed = True
+        elif not keys[pygame.K_f]:
+            self.flame_pressed = False
 
         # blobs
         if click:
@@ -220,9 +261,19 @@ class Player(pygame.sprite.Sprite):
             circle[1][0] += x_move
 
     # application of y direction
-    def apply_y_direction(self, dt):
-        for circle in range(len(self.circles)):
+    def apply_gravity_vel(self, dt):
+        for circle in range(len(self.circles) - 1):  # - 1 to disclude head circle
             self.circles[circle][1][1] += round(self.gravity * dt)
+
+    def apply_flame_vel(self, dt):
+        for circle in range(len(self.circles) - 1):
+            self.circles[circle][1][1] -= round(self.flamey * dt)
+
+            random_x_shift = randint(-int(self.flame_volume), int(self.flame_volume))
+            x_modifier = self.flame_width * sin(self.flame_timer * self.flame_speed) + random_x_shift
+            self.circles[circle][1][0] += round(x_modifier * dt)
+
+        self.flame_timer += 1  # only increases when flame is active (only neccessary when active)
 
     # syncs the player's current and stored hitboxes with the player rect for proper collisions. For use after movement of player rect.
     def sync_hitbox(self):
@@ -249,8 +300,11 @@ class Player(pygame.sprite.Sprite):
             self.circles.remove(circle)
         self.circles.append([self.start_radius, [self.rect.centerx, self.rect.centery]])
 
+        # apply directional modifiers based on state
         if self.apply_gravity:
-            self.apply_y_direction(dt)
+            self.apply_gravity_vel(dt)
+        elif self.apply_flame:
+            self.apply_flame_vel(dt)
 
         # -- CHECKS/UPDATE --
 
