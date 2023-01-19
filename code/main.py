@@ -106,7 +106,7 @@ def game():
 
         # -- Update --
         screen.fill('white')
-        level.update(dt, (mx, my), click)  # runs level processes
+        level.update(dt, (mx, my))  # runs level processes
 
         window.blit(pygame.transform.scale(screen, window.get_rect().size), (0, 0))  # scale screen to window
 
