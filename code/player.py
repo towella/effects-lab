@@ -1,5 +1,6 @@
 import pygame
 from game_data import tile_size, controller_map, scaling_factor
+from random import randint
 from lighting import Light
 from support import pos_for_center
 
@@ -47,15 +48,17 @@ class Player(pygame.sprite.Sprite):
 
 # -- checks --
 
-    def get_input(self, dt, tiles):
+    def get_input(self, click, dt, tiles):
         self.direction.x = 0
         keys = pygame.key.get_pressed()
 
+        # tail size
         if keys[pygame.K_m]:
             self.subtract_r += 0.05 * dt
         if keys[pygame.K_n]:
             self.subtract_r -= 0.05 * dt
 
+        # gravity
         if keys[pygame.K_g] and not self.gravity_pressed:
             self.apply_gravity = not self.apply_gravity
             self.gravity_pressed = True
@@ -65,20 +68,12 @@ class Player(pygame.sprite.Sprite):
         if self.subtract_r < 0:
             self.subtract_r = 0
 
-        # -- dash --
-        # if wanting to dash and not holding the button
-        '''if (keys[pygame.K_PERIOD] or self.get_controller_input('dash')) and not self.dash_pressed:
-            # if only just started dashing, dashing is true and dash direction is set. Prevents changing dash dir during dash
-            if not self.dashing:
-                self.dashing = True
-                self.dash_dir_right = self.facing_right
-            self.dashbuff_timer = 0  # set to 0 ready for next buffdash
-            self.dash_pressed = True
-        # neccessary to prevent repeated dashes on button hold
-        elif not keys[pygame.K_PERIOD] and not self.get_controller_input('dash'):
-            self.dash_pressed = False
+        # blobs
+        if click:
+            # randomly decide how many blob streaks will be created
+            for i in range(randint(3, 6)):
+                self.blob()  # make blob streaks
 
-        self.dash(dt)'''
 
     # - respawn -
 
@@ -101,45 +96,6 @@ class Player(pygame.sprite.Sprite):
         self.crouching = False  # end any crouching on respawn
         self.jumping = False  # end any jumps on respawn
         self.respawn = False
-
-# -- movement methods --
-
-    def dash(self, dt):
-        # - reset -
-        # reset dash, on ground OR if on the wall and dash completed (not dashing) - allows dash to finish before clinging
-        # reset despite button pressed or not (not dependant on button, can only dash with button not pressed)
-        if self.on_ground or (self.on_wall and not self.dashing):
-            self.dash_timer = 0
-        # - setup buffer dash - (only when not crouching)
-        # self.dashing is set to false when buffdash is cued. Sets to true on ground so that it can start a normal dash,
-        # which resets buffer dashing variables ready for next one
-        if self.on_ground and self.dashbuff_timer < self.dashbuff_max and not self.crouching:
-            self.dashing = True
-        # - start normal dash or continue dash - (only when not crouching)
-        # (if dashing and dash duration not exceeded OR buffered dash) AND not crouching, allow dash
-        if self.dashing and self.dash_timer < self.dash_max and not self.crouching:
-            # - norm dash -
-            # add velocity based on facing direction determined at start of dash
-            # self.dash_dir_right multiplies by 1 or -1 to change direction of dash speed distance
-            self.direction.x += self.dash_speed * self.dash_dir_right
-            # dash timer increment
-            self.dash_timer += round(1 * dt)
-
-            # - buffer -
-            # reset buffer jump with no jump cued
-            self.buffer_dash = False
-            self.dashbuff_timer = self.dashbuff_max
-        # - kill -
-        # if not dashing or timer exceeded, end dash but don't reset timer (prevents multiple dashes in the air)
-        else:
-            self.dashing = False
-
-        # -- buffer dash timer --
-        # cue up dash if dash button pressed (if dash is already allowed it will be maxed out in the dash code)
-        # OR having already cued, continue timing
-        if (self.dashbuff_timer == 0) or self.buffer_dash:
-            self.dashbuff_timer += round(1 * dt)
-            self.buffer_dash = True
 
 # -- update methods --
 
@@ -276,11 +232,11 @@ class Player(pygame.sprite.Sprite):
     def sync_rect(self):
         self.rect.midbottom = self.hitbox.midbottom
 
-    def update(self, mouse_pos, dt, tiles):
+    def update(self, mouse_pos, click, dt, tiles):
         self.sync_hitbox()  # just in case
 
         # -- INPUT --
-        self.get_input(dt, tiles)
+        self.get_input(click, dt, tiles)
         self.rect.centerx = mouse_pos[0]//scaling_factor
         self.rect.centery = mouse_pos[1]//scaling_factor
 
@@ -306,6 +262,11 @@ class Player(pygame.sprite.Sprite):
         self.collision_y(self.hitbox, tiles)
 
 # -- visual methods --
+
+    def blob(self):
+        angle = randint(1, 360)  # pick a random angle
+        max_distance = randint(10, 30)
+
 
     def draw(self):
         for circle in self.circles:
