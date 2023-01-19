@@ -42,7 +42,6 @@ pygame.display.set_icon(pygame.image.load(resource_path('../assets/icon/app_icon
 # controller
 pygame.joystick.init()
 joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
-print(f"joy {len(joysticks)}")
 for joystick in joysticks:
     joystick.init()
 
@@ -107,7 +106,7 @@ def game():
 
         # -- Update --
         screen.fill('white')
-        level.update(dt, (mx, my), click)  # runs level processes
+        level.update(dt, (mx, my))  # runs level processes
 
         window.blit(pygame.transform.scale(screen, window.get_rect().size), (0, 0))  # scale screen to window
 

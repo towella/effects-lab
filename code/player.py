@@ -20,6 +20,9 @@ class Player(pygame.sprite.Sprite):
         self.smallest_circle = 6
         self.subtract_r = 0.4
 
+        # radial effects
+        click_effects = []
+
         # - hitbox -
         self.hitbox = pygame.Rect(spawn[0], spawn[1], self.start_radius, self.start_radius)
 
@@ -57,7 +60,7 @@ class Player(pygame.sprite.Sprite):
 
 # -- checks --
 
-    def get_input(self, click, dt, tiles):
+    def get_input(self, dt, tiles):
         self.direction.x = 0
         keys = pygame.key.get_pressed()
 
@@ -110,10 +113,10 @@ class Player(pygame.sprite.Sprite):
             self.flame_pressed = False
 
         # blobs
-        if click:
+        if pygame.mouse.get_pressed()[0]:
             # randomly decide how many blob streaks will be created
             for i in range(randint(3, 6)):
-                self.blob()  # make blob streaks
+                self.click_effects.append()  # TODO
 
 
     # - respawn -
@@ -283,11 +286,11 @@ class Player(pygame.sprite.Sprite):
     def sync_rect(self):
         self.rect.midbottom = self.hitbox.midbottom
 
-    def update(self, mouse_pos, click, dt, tiles):
+    def update(self, mouse_pos, dt, tiles):
         self.sync_hitbox()  # just in case
 
         # -- INPUT --
-        self.get_input(click, dt, tiles)
+        self.get_input(dt, tiles)
         self.rect.centerx = mouse_pos[0]//scaling_factor
         self.rect.centery = mouse_pos[1]//scaling_factor
 
@@ -316,11 +319,6 @@ class Player(pygame.sprite.Sprite):
         self.collision_y(self.hitbox, tiles)
 
 # -- visual methods --
-
-    def blob(self):
-        angle = randint(1, 360)  # pick a random angle
-        max_distance = randint(10, 30)
-
 
     def draw(self):
         for circle in self.circles:

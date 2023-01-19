@@ -13,14 +13,15 @@ By Andrew Towell (2022 - 23)
 - generate-iconset 1.2.0
 
 ## Controls
-| Key(s)     | Function                       |
-|------------|--------------------------------|
-| Move Mouse | Move Orb                       |
-| G          | Toggle Gravity                 |
-| F          | Toggle Flame                   |
-| Q/W        | Decrease/Increase Flame Volume |
-| E/R        | Decrease/Increase Flame Width  |
-| A/S        | Decrease/Increase Flame Speed  |
-| Z/X        | Decrease/Increase Tail Length  |
-| P          | Pause                          |
-| ',' or ESC | Quit                           |
+| Key(s)     | Function                                 |
+|------------|------------------------------------------|
+| Move Mouse | Move Orb                                 |
+| G          | Toggle Gravity                           |
+| F          | Toggle Flame                             |
+| Q/W        | Decrease/Increase Flame Volume           |
+| E/R        | Decrease/Increase Flame Width            |
+| A/S        | Decrease/Increase Flame Speed            |
+| Z/X        | Decrease/Increase Tail Length            |
+| O          | Settings (control FX values more easily) |
+| P          | Pause                                    |
+| ',' or ESC | Quit                                     |
