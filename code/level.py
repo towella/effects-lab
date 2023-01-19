@@ -133,7 +133,7 @@ class Level:
 
     # updates the level allowing tile scroll and displaying tiles to screen
     # order is equivalent of layers
-    def update(self, dt, fps, mouse_pos):
+    def update(self, dt, mouse_pos, click):
         # #### INPUT > GAME(checks THEN UPDATE) > RENDER ####
         # checks deal with previous frames interactions. Update creates interactions for this frame which is then diplayed
         '''player = self.player.sprite'''
@@ -164,7 +164,7 @@ class Level:
 
         # -- UPDATES -- player needs to be before tiles for scroll to function properly
             # TODO IF TILES_IN_SCREEN ATTR IS CHANGED TO INCLUDE MORE LAYERS, CHANGE BACK TO self.collideable HERE!!!!
-            self.player.update(mouse_pos, dt, pygame.sprite.Group())
+            self.player.update(mouse_pos, click, dt, pygame.sprite.Group())
             '''self.all_sprites.update(scroll_value)'''
 
         # -- RENDER --
