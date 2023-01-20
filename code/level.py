@@ -2,7 +2,7 @@
 import pygame
 from pytmx.util_pygame import load_pygame  # allows use of tiled tile map files for pygame use
 # - general -
-from game_data import tile_size, controller_map, fonts
+from game_data import tile_size, controls, fonts
 from support import *
 # - tiles -
 from tiles import CollideableTile, HazardTile
@@ -10,6 +10,7 @@ from tiles import CollideableTile, HazardTile
 from player import Player
 from trigger import Trigger
 from spawn import Spawn
+from menus import Drag_Menu
 # - systems -
 from text import Font
 
@@ -25,11 +26,21 @@ class Level:
         self.mask_surf = pygame.Surface((self.screen_width, self.screen_height))
         self.mask_surf.set_colorkey((0, 0, 0))
 
+        # -- Menus --
+        # - Pause -
         self.pause = False
         self.pause_pressed = False
-
+        # - Settings -
         self.settings = False
         self.settings_pressed = False
+        # - Controls -
+        menu_y_pos = self.screen_surface.get_height()  # y pos of menu bg
+        height = 20  # height of button
+        width = 50  # width of button
+        centered_x = center_object_x(width, self.screen_surface.get_width())  # coord for centering button on x
+        y_pos = menu_y_pos - height//2  # coord for button on y
+        self.controls_m = Drag_Menu("../assets/menus/controls", self.screen_surface,
+                                    pygame.Rect(centered_x, y_pos, width, height), (0, menu_y_pos))
 
         dt = 1  # dt starts as 1 because on the first frame we can assume it is 60fps. dt = 1/60 * 60 = 1
 
@@ -96,7 +107,7 @@ class Level:
         keys = pygame.key.get_pressed()
 
         # pause menu
-        if keys[pygame.K_p]:
+        if keys[controls["Pause"]]:
             if not self.pause_pressed:
                 self.pause = not self.pause
             self.pause_pressed = True
@@ -104,12 +115,12 @@ class Level:
             self.pause_pressed = False
 
         # settings menu
-        '''if keys[pygame.K_o]:
+        if keys[controls["Settings"]]:
             if not self.settings_pressed:
                 self.settings = not self.settings
             self.settings_pressed = True
         else:
-            self.settings_pressed = False'''
+            self.settings_pressed = False
 
 # -- visual --
 
@@ -180,7 +191,9 @@ class Level:
             self.player.update(mouse_pos, dt, pygame.sprite.Group())
             '''self.all_sprites.update(scroll_value)'''
 
-        # -- RENDER --
+            self.controls_m.update(mouse_pos)
+
+        # -- RENDER -- (back --> front)
         # Draw
         self.player.draw()
         '''self.draw_tile_group(self.collideable)
@@ -190,6 +203,13 @@ class Level:
         self.mask_surf.fill('black')
         self.mask_surf.set_colorkey('black')
 
-        # must be after other renders to ensure menu is drawn last
+        self.controls_m.draw()
+
         if self.pause:
             self.pause_menu()
+
+        # player cursor
+        cursor = circle_surf(3, 'black')
+        cursor = outline_image(cursor, 'white', 2)
+        cursor_pos = pos_for_center(cursor, mouse_pos)
+        self.screen_surface.blit(cursor, cursor_pos)

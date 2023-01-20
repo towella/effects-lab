@@ -1,8 +1,17 @@
+import pygame
+
 tile_size = 16  # keep to prevent errors, even if game doesnt need tiles
 screen_width = 480  #31 * tile_size  # arbitrary
 screen_height = 282  #20 * tile_size  # arbitrary
 # 2560 x 1600
 scaling_factor = 3  # how much the screen is scaled up before bliting on display
+
+controls = {"Move Orb": "Move Mouse", "Radial Blast": "Right Click Mouse", "Toggle Tail Bloom": pygame.K_b,
+            "Toggle Gravity": pygame.K_g, "Toggle Flame": pygame.K_f,  "Toggle Repeat Blast": pygame.K_h,
+            "+/- Tail Length/Bloom Speed": pygame.K_t, "+/- Flame Volume": pygame.K_v,
+            "+/- Flame Amplitude": pygame.K_a, "+/- Flame Rate": pygame.K_r, "+/- Blast Width": pygame.K_w,
+            "+/- Blast Speed": pygame.K_s, "+/- Blast Duration": pygame.K_d, "Settings": pygame.K_o,
+            "Pause": pygame.K_p, "Quit": "Esc"}
 
 controller_map = {'square': 0, 'X': 1, 'circle': 2, 'triangle': 3, 'L1': 4, 'R1': 5, 'L2': 6, 'R2': 7, 'share': 8,
                   'options': 9, 'left_analog_press': 10, 'right_analog_press': 11, 'PS': 12, 'touchpad': 13,

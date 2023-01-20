@@ -1,26 +1,26 @@
 import pygame
-from support import import_folder, outline_image
+from support import import_folder, outline_image, resource_path
 from text import Font
 
 
 class Button:
     # images must be named 'default', 'hover', 'down' if relevant
+    # MUST HAVE DEFAULT
     # TODO add sound
-    def __init__(self, rect_pos, dimensions, image_pos, images_folder_path, down=False, outline_hover=True, hover=False):
+    def __init__(self, rect_pos, dimensions, images_folder_path, blit_offset=(0, 0), down=False, outline_hover=True, hover=False):
         self.down = down  # change image on down
         self.outline_hover = outline_hover  # outline default image on hover
         self.hover = hover  # change image on hover (takes precidence over outline_hover)
 
         self.hitbox = pygame.Rect(rect_pos[0], rect_pos[1], dimensions[0], dimensions[1])  # clickable area (also used for positioning)
-        self.image_pos = image_pos
-        self.blit_offset = [0, 0]
+        self.blit_offset = blit_offset
 
         self.mouse = pygame.mouse.get_pos()
         self.clicked = pygame.mouse.get_pressed()[0]
         self.activated = False
 
         # import images from button folder
-        self.images_dict = import_folder(images_folder_path)
+        self.images_dict = import_folder(resource_path(images_folder_path))
         self.image = self.images_dict['default']
 
     def mouse_hover(self):
@@ -50,16 +50,16 @@ class Button:
     def get_activated(self):
         return self.activated
 
-    def update(self):
+    def update(self, mouse_pos):
         self.blit_offset = [0, 0]
-        self.mouse = pygame.mouse.get_pos()
+        self.mouse = mouse_pos
         self.mouse_hover()
         self.mouse_click()
         self.clicked = pygame.mouse.get_pressed()[0]
 
     def draw(self, surface):
-        surface.blit(self.image, (self.image_pos[0] + self.blit_offset[0], self.image_pos[1] + self.blit_offset[1]))
-        # pygame.draw.rect(surface, 'red', self.hitbox, 1)  #  <-- debug rect
+        surface.blit(self.image, (self.hitbox.topleft[0] + self.blit_offset[0], self.hitbox.topleft[1] + self.blit_offset[1]))
+        #pygame.draw.rect(surface, 'red', self.hitbox, 1)  #  <-- debug rect
 
 
 # hover images must be 'hover true' and 'hover false'
