@@ -36,7 +36,7 @@ screen = pygame.Surface((screen_width, screen_height))  # the display surface, r
 screen_rect = screen.get_rect()  # used for camera scroll boundaries
 
 # caption and icon
-pygame.display.set_caption('Sample')
+pygame.display.set_caption('Effects Lab -- by Andrew Towell')
 pygame.display.set_icon(pygame.image.load(resource_path('../assets/icon/app_icon.png')))
 
 # controller

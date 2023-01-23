@@ -3,14 +3,14 @@ from support import import_folder, outline_image, resource_path
 from text import Font
 
 
+# TODO add text
 class Button:
     # images must be named 'default', 'hover', 'down' if relevant
     # MUST HAVE DEFAULT
     # TODO add sound
-    def __init__(self, rect_pos, dimensions, images_folder_path, blit_offset=(0, 0), down=False, outline_hover=True, hover=False):
-        self.down = down  # change image on down
+    def __init__(self, rect_pos, dimensions, images_folder_path, blit_offset=(0, 0), outline_hover=True, outline_colour='white'):
         self.outline_hover = outline_hover  # outline default image on hover
-        self.hover = hover  # change image on hover (takes precidence over outline_hover)
+        self.outline_colour = outline_colour
 
         self.hitbox = pygame.Rect(rect_pos[0], rect_pos[1], dimensions[0], dimensions[1])  # clickable area (also used for positioning)
         self.blit_offset = blit_offset
@@ -21,14 +21,19 @@ class Button:
 
         # import images from button folder
         self.images_dict = import_folder(resource_path(images_folder_path))
-        self.image = self.images_dict['default']
+        # If not a toggle, act as normal. Otherwise set image to a switch default so it can be reset later in the init proper
+        if "true" not in self.images_dict:
+            self.image = self.images_dict['default']
+        else:
+            self.image = self.images_dict["true"]
 
     def mouse_hover(self):
         if self.hitbox.collidepoint(self.mouse[0], self.mouse[1]):
-            if self.hover:
+            # change to hover image if image is available
+            if 'hover' in list(self.images_dict):
                 self.image = self.images_dict['hover']
             elif self.outline_hover:
-                self.image = outline_image(self.images_dict['default'])
+                self.image = outline_image(self.images_dict['default'], self.outline_colour)
                 # offset to account for added outline
                 self.blit_offset[0] -= 1
                 self.blit_offset[1] -= 1
@@ -37,8 +42,8 @@ class Button:
 
     def mouse_click(self):
         just_click = pygame.mouse.get_pressed()[0]  # produces three tuple: (b1, b2, b3). Norm click is b1
-        # mouse down changes button image to down image
-        if self.hitbox.collidepoint(self.mouse[0], self.mouse[1]) and self.clicked and just_click and self.down:
+        # mouse down changes button image to down image if image is avaliable
+        if self.hitbox.collidepoint(self.mouse[0], self.mouse[1]) and self.clicked and just_click and 'down' in self.images_dict:
             self.image = self.images_dict['down']
             self.blit_offset = [0, 0]  # prevents hover offset from being applied
         # mouse up after mouse down over button activates button
@@ -59,45 +64,56 @@ class Button:
 
     def draw(self, surface):
         surface.blit(self.image, (self.hitbox.topleft[0] + self.blit_offset[0], self.hitbox.topleft[1] + self.blit_offset[1]))
-        #pygame.draw.rect(surface, 'red', self.hitbox, 1)  #  <-- debug rect
+        # pygame.draw.rect(surface, 'red', self.hitbox, 1)  #  <-- debug rect
 
 
 # hover images must be 'hover true' and 'hover false'
 class Toggle(Button):
-    def __init__(self, toggle, rect_pos, dimensions, image_pos, images_folder_path, down=False, outline_hover=True, hover=False):
-        super().__init__(rect_pos, dimensions, image_pos, images_folder_path, down, outline_hover, hover)
-        self.activated = toggle
+    def __init__(self, toggle, rect_pos, dimensions, images_folder_path, image_offset=(0, 0), outline_hover=True):
+        super().__init__(rect_pos, dimensions, images_folder_path, image_offset, outline_hover)
+        self.toggle = toggle  # handles state of toggle
+        if not self.toggle:
+            self.image = self.images_dict["false"]
 
     def mouse_hover(self):
         if self.hitbox.collidepoint(self.mouse[0], self.mouse[1]):
-            if self.hover:
-                if self.activated:
+            if "hover true" in self.images_dict and "hover false" in self.images_dict:
+                if self.toggle:
                     self.image = self.images_dict['hover true']
                 else:
                     self.image = self.images_dict['hover false']
             elif self.outline_hover:
                 # TODO handle offset from border
-                if not self.activated:
-                    self.image = outline_image(self.images_dict['default'])
+                if not self.toggle:
+                    self.image = outline_image(self.images_dict['false'])
                 else:
                     self.image = outline_image(self.images_dict['true'])
                 # offset to account for added outline
                 self.blit_offset[0] -= 1
                 self.blit_offset[1] -= 1
         else:
-            if self.activated:
+            if self.toggle:
                 self.image = self.images_dict['true']
             else:
-                self.image = self.images_dict['default']
+                self.image = self.images_dict['false']
 
     def mouse_click(self):
         just_click = pygame.mouse.get_pressed()[0]  # produces three tuple: (b1, b2, b3). Norm click is b1
         # mouse down changes button image to down image
-        if self.hitbox.collidepoint(self.mouse[0], self.mouse[1]) and self.clicked and just_click and self.down:
+        if self.hitbox.collidepoint(self.mouse[0], self.mouse[1]) and self.clicked and just_click and "down" in self.images_dict:
             self.image = self.images_dict['down']
             self.blit_offset = [0, 0]  # prevents hover offset from being applied
         if self.hitbox.collidepoint(self.mouse[0], self.mouse[1]) and not self.clicked and just_click:
-            self.activated = not self.activated
+            self.toggle = not self.toggle
+            self.activated = True
+        else:
+            self.activated = False
+
+    def get_toggle(self):
+        return self.toggle
+
+    def set_toggle(self, state):
+        self.toggle = bool(state)
 
 
 class Slider:

@@ -39,6 +39,8 @@ By Andrew Towell (2022 - 23)
 | S/Shift + S       | Increase/Decrease Blast Speed                 |
 | D/Shift + D       | Increase/Decrease Blast Duration              |
 |                   |                                               |
-| O                 | Settings (control FX values more easily)      |
+| I                 | See Controls                                  |
+| O                 | Settings (control effect values more easily)  |
 | P                 | Pause                                         |
+| Tab               | Toggle Fullscreen                             |
 | ',' or ESC        | Quit                                          |

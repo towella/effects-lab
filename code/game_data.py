@@ -10,8 +10,8 @@ controls = {"Move Orb": "Move Mouse", "Radial Blast": "Right Click Mouse", "Togg
             "Toggle Gravity": pygame.K_g, "Toggle Flame": pygame.K_f,  "Toggle Repeat Blast": pygame.K_h,
             "+/- Tail Length/Bloom Speed": pygame.K_t, "+/- Flame Volume": pygame.K_v,
             "+/- Flame Amplitude": pygame.K_a, "+/- Flame Rate": pygame.K_r, "+/- Blast Width": pygame.K_w,
-            "+/- Blast Speed": pygame.K_s, "+/- Blast Duration": pygame.K_d, "Settings": pygame.K_o,
-            "Pause": pygame.K_p, "Quit": "Esc"}
+            "+/- Blast Speed": pygame.K_s, "+/- Blast Duration": pygame.K_d, "Controls": pygame.K_i,
+            "Settings": pygame.K_o, "Pause": pygame.K_p, "Toggle Fullscreen": "Tab", "Quit": "Esc"}
 
 controller_map = {'square': 0, 'X': 1, 'circle': 2, 'triangle': 3, 'L1': 4, 'R1': 5, 'L2': 6, 'R2': 7, 'share': 8,
                   'options': 9, 'left_analog_press': 10, 'right_analog_press': 11, 'PS': 12, 'touchpad': 13,

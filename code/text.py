@@ -45,6 +45,7 @@ class Font:
                 text_width += self.letter_spacing[self.font_order.index(char)] + self.base_spacing
         return text_width
 
+    # assumes that surf will be large enough for outline to fit
     def render(self, text, surf, loc, outline_col='', line_width=0):
         x_offset = 0
         y_offset = 0
@@ -80,7 +81,11 @@ class Font:
                 x_offset = 0
 
     def get_surf(self, text, outline_col='', line_width=0):
-        surface = pygame.Surface((self.width(text)+1, self.line_height))
+        if outline_col == '':
+            surface = pygame.Surface((self.width(text), self.line_height))
+        else:
+            # +2 to make room for outline border
+            surface = pygame.Surface((self.width(text)+1 + 2, self.line_height + 2))
         surface.set_colorkey((0, 0, 0))
         self.render(text, surface, (0, 0), outline_col, line_width)
         return surface
