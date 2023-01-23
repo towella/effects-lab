@@ -1,5 +1,5 @@
 import pygame
-from game_data import tile_size, controller_map, scaling_factor
+from game_data import tile_size, scaling_factor, controls
 from random import randint
 from math import sin
 from visual_FX import Radial_Blast
@@ -20,15 +20,15 @@ class Player(pygame.sprite.Sprite):
         self.circles = [[self.start_radius, [self.rect.centerx, self.rect.centery]]]
         self.smallest_circle = 6
         self.largest_circle = 500
-        self.subtract_r = 0.4
+        self.subtract_r = 40  # (x100)
 
         # radial effects
         self.click_effects = pygame.sprite.Group()
         self.blast_radius = 15
         self.blast_colour = 'white'
-        self.blast_width = 15
-        self.blast_speed = 3
-        self.blast_duration = 150
+        self.blast_width = 123
+        self.blast_speed = 533
+        self.blast_duration = 214
 
         # - hitbox -
         self.hitbox = pygame.Rect(spawn[0], spawn[1], self.start_radius, self.start_radius)
@@ -52,9 +52,9 @@ class Player(pygame.sprite.Sprite):
 
         # - Tail Flame -
         self.flamey = 3  # flame tail size (constant upward force)
-        self.flame_amplitude = 1  # flame tail x force constant
-        self.flame_speed = 0.2  # speed of flame sine wave
-        self.flame_volume = 2  # amount of x randomness per particle
+        self.flame_amplitude = 10  # flame tail x force constant
+        self.flame_speed = 200  # speed of flame sine wave  (x1000)
+        self.flame_volume = 20  # amount of x randomness per particle
         self.flame_timer = 0
         self.apply_flame = False
         self.flame_pressed = False
@@ -73,36 +73,40 @@ class Player(pygame.sprite.Sprite):
         # --- TAIL CONTROLS ---
 
         # tail size
-        if keys[pygame.K_t] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.subtract_r += 0.01 * dt
-        elif keys[pygame.K_t]:
-            self.subtract_r -= 0.01 * dt
+        key = controls["+/- Tail Length/Bloom Speed"]
+        if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.subtract_r += 1 * dt
+        elif keys[key]:
+            self.subtract_r -= 1 * dt
         if self.subtract_r < 0:
             self.subtract_r = 0
 
         # --- FLAME CONTROLS ---
 
         # flame rate
-        if keys[pygame.K_r] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.flame_speed -= 0.005 * dt
-        elif keys[pygame.K_r]:
-            self.flame_speed += 0.005 * dt
+        key = controls["+/- Flame Rate"]
+        if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.flame_speed -= 5 * dt
+        elif keys[key]:
+            self.flame_speed += 5 * dt
         if self.flame_speed < 0:
             self.flame_speed = 0
 
         # flame volume
-        if keys[pygame.K_v] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.flame_volume -= 0.2 * dt
-        elif keys[pygame.K_v]:
-            self.flame_volume += 0.2 * dt
+        key = controls["+/- Flame Volume"]
+        if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.flame_volume -= 2 * dt
+        elif keys[key]:
+            self.flame_volume += 2 * dt
         if self.flame_volume < 0:
             self.flame_volume = 0
 
         # flame amplitude
-        if keys[pygame.K_a] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.flame_amplitude -= 0.2 * dt
-        elif keys[pygame.K_a]:
-            self.flame_amplitude += 0.2 * dt
+        key = controls["+/- Flame Amplitude"]
+        if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.flame_amplitude -= 2 * dt
+        elif keys[key]:
+            self.flame_amplitude += 2 * dt
         if self.flame_amplitude < 0:
             self.flame_amplitude = 0
 
@@ -111,32 +115,35 @@ class Player(pygame.sprite.Sprite):
         # blasts
         if pygame.mouse.get_pressed()[0] and (not self.mouse_clicked or self.allow_hold_click):
             self.click_effects.add(
-                Radial_Blast(self.blast_radius, self.blast_colour, self.blast_width, self.surface, mouse_pos,
-                             self.blast_speed, self.blast_duration))
+                Radial_Blast(self.blast_radius, self.blast_colour, (self.blast_width / 10), self.surface, mouse_pos,
+                             (self.blast_speed / 100), self.blast_duration))
             self.mouse_clicked = True
         elif not pygame.mouse.get_pressed()[0]:
             self.mouse_clicked = False
 
         # blast width
-        if keys[pygame.K_w] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.blast_width -= 0.2 * dt
-        elif keys[pygame.K_w]:
-            self.blast_width += 0.2 * dt
+        key = controls["+/- Blast Width"]
+        if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.blast_width -= 2 * dt
+        elif keys[key]:
+            self.blast_width += 2 * dt
         if self.blast_width < 1:
             self.blast_width = 1
 
         # blast speed
-        if keys[pygame.K_s] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.blast_speed -= 0.02 * dt
-        elif keys[pygame.K_s]:
-            self.blast_speed += 0.02 * dt
+        key = controls["+/- Blast Speed"]
+        if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.blast_speed -= 2 * dt
+        elif keys[key]:
+            self.blast_speed += 2 * dt
         if self.blast_speed < 0:
             self.blast_speed = 0
 
         # blast duration
-        if keys[pygame.K_d] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+        key = controls["+/- Blast Duration"]
+        if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
             self.blast_duration -= 0.5 * dt
-        elif keys[pygame.K_d]:
+        elif keys[key]:
             self.blast_duration += 0.5 * dt
         if self.blast_duration < 0:
             self.blast_duration = 0
@@ -144,33 +151,37 @@ class Player(pygame.sprite.Sprite):
         # --- TOGGLES ---
 
         # tail bloom
-        if keys[pygame.K_b] and not self.bloom_pressed:
+        key = controls["Toggle Tail Bloom"]
+        if keys[key] and not self.bloom_pressed:
             self.tail_bloom = -self.tail_bloom
             self.bloom_pressed = True
-        elif not keys[pygame.K_b]:
+        elif not keys[key]:
             self.bloom_pressed = False
 
         # gravity
-        if keys[pygame.K_g] and not self.gravity_pressed:
+        key = controls["Toggle Gravity"]
+        if keys[key] and not self.gravity_pressed:
             self.apply_gravity = not self.apply_gravity
             self.apply_flame = False
             self.gravity_pressed = True
-        elif not keys[pygame.K_g]:
+        elif not keys[key]:
             self.gravity_pressed = False
 
         # flame
-        if keys[pygame.K_f] and not self.flame_pressed:
+        key = controls["Toggle Flame"]
+        if keys[key] and not self.flame_pressed:
             self.apply_flame = not self.apply_flame
             self.apply_gravity = False
             self.flame_pressed = True
-        elif not keys[pygame.K_f]:
+        elif not keys[key]:
             self.flame_pressed = False
 
         # allow hold click
-        if keys[pygame.K_h] and not self.allow_hold_pressed:
+        key = controls["Toggle Repeat Blast"]
+        if keys[key] and not self.allow_hold_pressed:
             self.allow_hold_click = not self.allow_hold_click
             self.allow_hold_pressed = True
-        elif not keys[pygame.K_h]:
+        elif not keys[key]:
             self.allow_hold_pressed = False
 
 
@@ -324,12 +335,14 @@ class Player(pygame.sprite.Sprite):
         for circle in range(len(self.circles) - 1):  # - 1 to disclude head circle
             self.circles[circle][1][1] += round(self.gravity * dt)
 
+    # All the random division rubbish is my way of making all the units whole numbers for the settings menu
+    # then converting back into the decimal "equivalents" for real use. Super janky but it works
     def apply_flame_vel(self, dt):
         for circle in range(len(self.circles) - 1):
             self.circles[circle][1][1] -= round(self.flamey * dt)
 
-            random_x_shift = randint(-int(self.flame_volume), int(self.flame_volume))
-            x_modifier = self.flame_amplitude * sin(self.flame_timer * self.flame_speed) + random_x_shift
+            random_x_shift = randint(-int(self.flame_volume / 10), int(self.flame_volume / 10))
+            x_modifier = (self.flame_amplitude / 10) * sin(self.flame_timer * (self.flame_speed / 1000)) + random_x_shift
             self.circles[circle][1][0] += round(x_modifier * dt)
 
         self.flame_timer += 1  # only increases when flame is active (only neccessary when active)
@@ -343,8 +356,6 @@ class Player(pygame.sprite.Sprite):
         self.rect.midbottom = self.hitbox.midbottom
 
     def update(self, mouse_pos, dt, tiles):
-        # make mouse pos accurate to screen rather than window
-        mouse_pos = (mouse_pos[0] // scaling_factor, mouse_pos[1] // scaling_factor)
 
         self.sync_hitbox()  # just in case
 
@@ -356,7 +367,7 @@ class Player(pygame.sprite.Sprite):
         r_circles = []
         for circle in range(len(self.circles)):
             # subtract from each circle's radius * bloom (either -1 or 1, makes go in or out)
-            self.circles[circle][0] -= self.tail_bloom * self.subtract_r * dt
+            self.circles[circle][0] -= self.tail_bloom * (self.subtract_r / 100) * dt
             # remove circles if too big or too small
             if self.largest_circle < self.circles[circle][0] or self.circles[circle][0] < self.smallest_circle:
                 r_circles.append(self.circles[circle])

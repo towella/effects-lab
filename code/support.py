@@ -109,39 +109,47 @@ def swap_colour(img, old_c, new_c):
 
 # TODO issue with masking out black sections of image
 # black will not work due to masking
-def outline_image(image, colour='white'):
+def outline_image(image, colour='white', repeat=1):
     # black will not work so change to almost black
     if colour == 'black' or colour == (0, 0, 0):
         colour = (1, 0, 0)
 
-    # make surf for application
-    surf = pygame.Surface((image.get_width() + 2, image.get_height() + 2))
-    surf.set_colorkey((0, 0, 0))
+    # allow for multiple layers of outline
+    for i in range(repeat):
+        # make surf for application
+        surf = pygame.Surface((image.get_width() + 2, image.get_height() + 2))
+        surf.set_colorkey((0, 0, 0))
 
-    # create mask from image (necessary for white outlines)
-    mask = pygame.mask.from_surface(image)
-    mask_surf = mask.to_surface()
-    mask_surf.set_colorkey((0, 0, 0))
+        # create mask from image (necessary for white outlines)
+        mask = pygame.mask.from_surface(image)
+        mask_surf = mask.to_surface()
+        mask_surf.set_colorkey((0, 0, 0))
 
-    # create outline area
-    surf.blit(mask_surf, (0, 1))
-    surf.blit(mask_surf, (1, 0))
-    surf.blit(mask_surf, (1, 2))
-    surf.blit(mask_surf, (2, 1))
+        # create outline area
+        surf.blit(mask_surf, (0, 1))
+        surf.blit(mask_surf, (1, 0))
+        surf.blit(mask_surf, (1, 2))
+        surf.blit(mask_surf, (2, 1))
 
-    if colour != 'white' and colour != (255, 255, 255):
-        surf = swap_colour(surf, 'white', colour)
+        if colour != 'white' and colour != (255, 255, 255):
+            surf = swap_colour(surf, 'white', colour)
 
-    # layer original image over outline
-    surf.blit(image, (1, 1))
-    return surf
+        # layer original image over outline
+        surf.blit(image, (1, 1))
+        image = surf
+
+    return image
 
 
 def circle_surf(radius, colour):
+    # avoid issues with colorkey
+    if colour == 'black' or colour == (0, 0, 0):
+        colour = (1, 1, 1)
+
     radius = int(radius)
     surf = pygame.Surface((radius*2, radius*2))
-    pygame.draw.circle(surf, colour, (radius, radius), radius)
     surf.set_colorkey((0, 0, 0))
+    pygame.draw.circle(surf, colour, (radius, radius), radius)
     return surf
 
 
@@ -208,6 +216,9 @@ def center_object_x_surf(subject_surf, blit_surf):
 def center_object_x_rect(width_obj, rect):
     width = rect.right - rect.left
     return width//2 + rect.left - width_obj//2
+
+def center_object_x(width_obj, width_larger_obj):
+    return width_larger_obj//2 - width_obj//2
 
 
 # converts a position refering to topleft to be applicable to surface's center

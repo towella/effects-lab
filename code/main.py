@@ -36,7 +36,7 @@ screen = pygame.Surface((screen_width, screen_height))  # the display surface, r
 screen_rect = screen.get_rect()  # used for camera scroll boundaries
 
 # caption and icon
-pygame.display.set_caption('Sample')
+pygame.display.set_caption('Effects Lab -- by Andrew Towell')
 pygame.display.set_icon(pygame.image.load(resource_path('../assets/icon/app_icon.png')))
 
 # controller
@@ -74,6 +74,8 @@ def game():
 
         # x and y mouse pos
         mx, my = pygame.mouse.get_pos()
+        # make mouse pos accurate to screen rather than window
+        mouse_pos = (mx // scaling_factor, my // scaling_factor)
 
         # Event Checks -- Input --
         click = False
@@ -84,12 +86,7 @@ def game():
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
-                # debug keys
-                if event.key == pygame.K_SLASH:
-                    pass
-                elif event.key == pygame.K_PERIOD:
-                    pass
-                elif event.key == pygame.K_COMMA or event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_COMMA or event.key == pygame.K_ESCAPE:
                     running = False
                     pygame.quit()
                     sys.exit()
@@ -106,7 +103,7 @@ def game():
 
         # -- Update --
         screen.fill('white')
-        level.update(dt, (mx, my))  # runs level processes
+        level.update(dt, mouse_pos)  # runs level processes
 
         window.blit(pygame.transform.scale(screen, window.get_rect().size), (0, 0))  # scale screen to window
 
