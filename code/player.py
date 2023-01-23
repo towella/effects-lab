@@ -20,15 +20,15 @@ class Player(pygame.sprite.Sprite):
         self.circles = [[self.start_radius, [self.rect.centerx, self.rect.centery]]]
         self.smallest_circle = 6
         self.largest_circle = 500
-        self.subtract_r = 0.4
+        self.subtract_r = 40  # (x100)
 
         # radial effects
         self.click_effects = pygame.sprite.Group()
         self.blast_radius = 15
         self.blast_colour = 'white'
-        self.blast_width = 15
-        self.blast_speed = 3
-        self.blast_duration = 150
+        self.blast_width = 123
+        self.blast_speed = 533
+        self.blast_duration = 214
 
         # - hitbox -
         self.hitbox = pygame.Rect(spawn[0], spawn[1], self.start_radius, self.start_radius)
@@ -52,9 +52,9 @@ class Player(pygame.sprite.Sprite):
 
         # - Tail Flame -
         self.flamey = 3  # flame tail size (constant upward force)
-        self.flame_amplitude = 1  # flame tail x force constant
-        self.flame_speed = 0.2  # speed of flame sine wave
-        self.flame_volume = 2  # amount of x randomness per particle
+        self.flame_amplitude = 10  # flame tail x force constant
+        self.flame_speed = 200  # speed of flame sine wave  (x1000)
+        self.flame_volume = 20  # amount of x randomness per particle
         self.flame_timer = 0
         self.apply_flame = False
         self.flame_pressed = False
@@ -75,9 +75,9 @@ class Player(pygame.sprite.Sprite):
         # tail size
         key = controls["+/- Tail Length/Bloom Speed"]
         if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.subtract_r += 0.01 * dt
+            self.subtract_r += 1 * dt
         elif keys[key]:
-            self.subtract_r -= 0.01 * dt
+            self.subtract_r -= 1 * dt
         if self.subtract_r < 0:
             self.subtract_r = 0
 
@@ -86,27 +86,27 @@ class Player(pygame.sprite.Sprite):
         # flame rate
         key = controls["+/- Flame Rate"]
         if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.flame_speed -= 0.005 * dt
+            self.flame_speed -= 5 * dt
         elif keys[key]:
-            self.flame_speed += 0.005 * dt
+            self.flame_speed += 5 * dt
         if self.flame_speed < 0:
             self.flame_speed = 0
 
         # flame volume
         key = controls["+/- Flame Volume"]
         if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.flame_volume -= 0.2 * dt
+            self.flame_volume -= 2 * dt
         elif keys[key]:
-            self.flame_volume += 0.2 * dt
+            self.flame_volume += 2 * dt
         if self.flame_volume < 0:
             self.flame_volume = 0
 
         # flame amplitude
         key = controls["+/- Flame Amplitude"]
         if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.flame_amplitude -= 0.2 * dt
+            self.flame_amplitude -= 2 * dt
         elif keys[key]:
-            self.flame_amplitude += 0.2 * dt
+            self.flame_amplitude += 2 * dt
         if self.flame_amplitude < 0:
             self.flame_amplitude = 0
 
@@ -115,8 +115,8 @@ class Player(pygame.sprite.Sprite):
         # blasts
         if pygame.mouse.get_pressed()[0] and (not self.mouse_clicked or self.allow_hold_click):
             self.click_effects.add(
-                Radial_Blast(self.blast_radius, self.blast_colour, self.blast_width, self.surface, mouse_pos,
-                             self.blast_speed, self.blast_duration))
+                Radial_Blast(self.blast_radius, self.blast_colour, (self.blast_width / 10), self.surface, mouse_pos,
+                             (self.blast_speed / 100), self.blast_duration))
             self.mouse_clicked = True
         elif not pygame.mouse.get_pressed()[0]:
             self.mouse_clicked = False
@@ -124,18 +124,18 @@ class Player(pygame.sprite.Sprite):
         # blast width
         key = controls["+/- Blast Width"]
         if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.blast_width -= 0.2 * dt
+            self.blast_width -= 2 * dt
         elif keys[key]:
-            self.blast_width += 0.2 * dt
+            self.blast_width += 2 * dt
         if self.blast_width < 1:
             self.blast_width = 1
 
         # blast speed
         key = controls["+/- Blast Speed"]
         if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-            self.blast_speed -= 0.02 * dt
+            self.blast_speed -= 2 * dt
         elif keys[key]:
-            self.blast_speed += 0.02 * dt
+            self.blast_speed += 2 * dt
         if self.blast_speed < 0:
             self.blast_speed = 0
 
@@ -335,12 +335,14 @@ class Player(pygame.sprite.Sprite):
         for circle in range(len(self.circles) - 1):  # - 1 to disclude head circle
             self.circles[circle][1][1] += round(self.gravity * dt)
 
+    # All the random division rubbish is my way of making all the units whole numbers for the settings menu
+    # then converting back into the decimal "equivalents" for real use. Super janky but it works
     def apply_flame_vel(self, dt):
         for circle in range(len(self.circles) - 1):
             self.circles[circle][1][1] -= round(self.flamey * dt)
 
-            random_x_shift = randint(-int(self.flame_volume), int(self.flame_volume))
-            x_modifier = self.flame_amplitude * sin(self.flame_timer * self.flame_speed) + random_x_shift
+            random_x_shift = randint(-int(self.flame_volume / 10), int(self.flame_volume / 10))
+            x_modifier = (self.flame_amplitude / 10) * sin(self.flame_timer * (self.flame_speed / 1000)) + random_x_shift
             self.circles[circle][1][0] += round(x_modifier * dt)
 
         self.flame_timer += 1  # only increases when flame is active (only neccessary when active)
@@ -354,6 +356,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.midbottom = self.hitbox.midbottom
 
     def update(self, mouse_pos, dt, tiles):
+
         self.sync_hitbox()  # just in case
 
         # -- INPUT --
@@ -364,7 +367,7 @@ class Player(pygame.sprite.Sprite):
         r_circles = []
         for circle in range(len(self.circles)):
             # subtract from each circle's radius * bloom (either -1 or 1, makes go in or out)
-            self.circles[circle][0] -= self.tail_bloom * self.subtract_r * dt
+            self.circles[circle][0] -= self.tail_bloom * (self.subtract_r / 100) * dt
             # remove circles if too big or too small
             if self.largest_circle < self.circles[circle][0] or self.circles[circle][0] < self.smallest_circle:
                 r_circles.append(self.circles[circle])

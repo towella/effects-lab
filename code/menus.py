@@ -136,30 +136,36 @@ class Settings_Menu:
                                             "../assets/menus/settings/pages/main/close_button", (0, 0), False)
 
         top_left = self.rect.topleft
+        height = 42
+        y_increment = 47
+        y = 35
 
         width = 85
-        height = 42
         center_x = center_object_x(width, self.surface.get_width())
-        self.interactives["toggles"] = Button((center_x, top_left[1] + 35), (width, height),
+        self.interactives["toggles"] = Button((center_x, top_left[1] + y), (width, height),
                                               "../assets/menus/settings/pages/main/toggles_button", (0, 0), False)
 
+        y += y_increment
         width = 109
-        height = 42
         center_x = center_object_x(width, self.surface.get_width())
-        self.interactives["tail"] = Button((center_x, top_left[1] + 85), (width, height),
+        self.interactives["tail"] = Button((center_x, top_left[1] + y), (width, height),
                                            "../assets/menus/settings/pages/main/tail_modifiers_button", (0, 0), False)
 
+        y += y_increment
         width = 123
-        height = 42
         center_x = center_object_x(width, self.surface.get_width())
-        self.interactives["flame"] = Button((center_x, top_left[1] + 135), (width, height),
+        self.interactives["flame"] = Button((center_x, top_left[1] + y), (width, height),
                                             "../assets/menus/settings/pages/main/flame_modifiers_button", (0, 0), False)
 
+        y += y_increment
         width = 120
-        height = 42
         center_x = center_object_x(width, self.surface.get_width())
-        self.interactives["blast"] = Button((center_x, top_left[1] + 185), (width, height),
+        self.interactives["blast"] = Button((center_x, top_left[1] + y), (width, height),
                                             "../assets/menus/settings/pages/main/blast_modifiers_button", (0, 0), False)
+
+        # bottom disclaimer
+        text = self.small_font.get_surf("Use of keyboard shortcuts is recommended for best user experience")
+        self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), self.rect.bottom - 38))
 
     def setup_toggles_page(self):
         self.clear_page("toggles")
@@ -251,6 +257,20 @@ class Settings_Menu:
         self.interactives["back"] = Button((self.rect.topleft[0] + 10, self.rect.topleft[1] + 10), (9, 10),
                                             "../assets/menus/settings/pages/tail/back_button", (0, 0), False)
 
+        # -- Sliders --
+        y_increment = 26
+        y = self.rect.topleft[1] + 25
+        slider_width = 51
+        slider_path = "../assets/menus/settings/pages/tail/slider"
+
+        text = self.small_font.get_surf("Tail Length/Bloom Speed: ")
+        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        self.interactives["tail length/bloom speed"] = Slider((self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
+                                                              (slider_width, 13), 1, 3, self.values["tail length/bloom speed"],
+                                                              self.rect.topleft[1] + y - 3, (7, 13),
+                                                              slider_path, (0, 0), (0, 6), False)
+        self.working_surf.blit(text, (center_x, y))
+
     def setup_flame_page(self):
         self.clear_page("flame")
 
@@ -262,6 +282,41 @@ class Settings_Menu:
         self.interactives["back"] = Button((self.rect.topleft[0] + 10, self.rect.topleft[1] + 10), (9, 10),
                                             "../assets/menus/settings/pages/flame/back_button", (0, 0), False)
 
+        # -- Sliders --
+        y_increment = 26
+        y = self.rect.topleft[1] + 25
+        slider_width = 51
+        slider_path = "../assets/menus/settings/pages/flame/slider"
+
+        text = self.small_font.get_surf("Flame Volume: ")
+        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        self.interactives["flame volume"] = Slider(
+            (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
+            (slider_width, 13), 1, 2, self.values["flame volume"],
+            self.rect.topleft[1] + y - 3, (7, 13),
+            slider_path, (0, 0), (0, 6), False)
+        self.working_surf.blit(text, (center_x, y))
+
+        y += y_increment
+        text = self.small_font.get_surf("Flame Amplitude: ")
+        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        self.interactives["flame amplitude"] = Slider(
+            (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
+            (slider_width, 13), 1, 2, self.values["flame amplitude"],
+            self.rect.topleft[1] + y - 3, (7, 13),
+            slider_path, (0, 0), (0, 6), False)
+        self.working_surf.blit(text, (center_x, y))
+
+        y += y_increment
+        text = self.small_font.get_surf("Flame Rate: ")
+        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        self.interactives["flame rate"] = Slider(
+            (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
+            (slider_width, 13), 1, 8, self.values["flame rate"],
+            self.rect.topleft[1] + y - 3, (7, 13),
+            slider_path, (0, 0), (0, 6), False)
+        self.working_surf.blit(text, (center_x, y))
+
     def setup_blast_page(self):
         self.clear_page("blast")
 
@@ -272,6 +327,41 @@ class Settings_Menu:
         # -- Buttons --
         self.interactives["back"] = Button((self.rect.topleft[0] + 10, self.rect.topleft[1] + 10), (9, 10),
                                             "../assets/menus/settings/pages/blast/back_button", (0, 0), False)
+
+        # -- Sliders --
+        y_increment = 26
+        y = self.rect.topleft[1] + 25
+        slider_width = 51
+        slider_path = "../assets/menus/settings/pages/blast/slider"
+
+        text = self.small_font.get_surf("Blast Speed: ")
+        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        self.interactives["blast speed"] = Slider(
+            (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
+            (slider_width, 13), 1, 20, self.values["blast speed"],
+            self.rect.topleft[1] + y - 3, (7, 13),
+            slider_path, (0, 0), (0, 6), False)
+        self.working_surf.blit(text, (center_x, y))
+
+        y += y_increment
+        text = self.small_font.get_surf("Blast Width: ")
+        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        self.interactives["blast width"] = Slider(
+            (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
+            (slider_width, 13), 1, 10, self.values["blast width"],
+            self.rect.topleft[1] + y - 3, (7, 13),
+            slider_path, (0, 0), (0, 6), False)
+        self.working_surf.blit(text, (center_x, y))
+
+        y += y_increment
+        text = self.small_font.get_surf("Blast Duration: ")
+        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        self.interactives["blast duration"] = Slider(
+            (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
+            (slider_width, 13), 1, 8, self.values["blast duration"],
+            self.rect.topleft[1] + y - 3, (7, 13),
+            slider_path, (0, 0), (0, 6), False)
+        self.working_surf.blit(text, (center_x, y))
 
     # -- Page Checks --
 
@@ -303,30 +393,62 @@ class Settings_Menu:
         elif self.interactives["blast"].get_activated():
             self.values["blast"] = self.interactives["blast"].get_toggle()
         elif self.interactives["fullscreen"].get_activated():
-            pygame.display.toggle_fullscreen()
             self.values["fullscreen"] = self.interactives["fullscreen"].get_toggle()
+            pygame.display.toggle_fullscreen()
 
         # flame and gravity can not be on at the same time. Turn one off if the other is clicked
         elif self.interactives["gravity"].get_toggle() and self.interactives["flame"].get_activated():
             self.interactives["gravity"].set_toggle(False)
             self.values["gravity"] = False
             self.values["flame"] = True
+        elif self.interactives["flame"].get_activated():
+            self.values["flame"] = self.interactives["flame"].get_toggle()
         elif self.interactives["flame"].get_toggle() and self.interactives["gravity"].get_activated():
             self.interactives["flame"].set_toggle(False)
             self.values["flame"] = False
             self.values["gravity"] = True
+        elif self.interactives["gravity"].get_activated():
+            self.values["gravity"] = self.interactives["gravity"].get_toggle()
 
     def tail_page(self):
+        # -- UPDATE --
         if self.interactives["back"].get_activated():
             self.setup_main_page()
+
+        elif self.interactives["tail length/bloom speed"].get_activated():
+            self.values["tail length/bloom speed"] = self.interactives["tail length/bloom speed"].get_value()
 
     def flame_page(self):
         if self.interactives["back"].get_activated():
             self.setup_main_page()
 
+        elif self.interactives["flame volume"].get_activated():
+            self.values["flame volume"] = self.interactives["flame volume"].get_value()
+        elif self.interactives["flame amplitude"].get_activated():
+            self.values["flame amplitude"] = self.interactives["flame amplitude"].get_value()
+        elif self.interactives["flame rate"].get_activated():
+            self.values["flame rate"] = self.interactives["flame rate"].get_value()
+
     def blast_page(self):
         if self.interactives["back"].get_activated():
             self.setup_main_page()
+
+        elif self.interactives["blast width"].get_activated():
+            self.values["blast width"] = self.interactives["blast width"].get_value()
+        elif self.interactives["blast speed"].get_activated():
+            self.values["blast speed"] = self.interactives["blast speed"].get_value()
+        elif self.interactives["blast duration"].get_activated():
+            self.values["blast duration"] = self.interactives["blast duration"].get_value()
+
+    # ---------------------
+
+    def draw_slider_page(self):
+        # -- DRAW --
+        for key in self.interactives:
+            element = self.interactives[key]
+            if isinstance(element, Slider):
+                text = self.small_font.get_surf("  " + str(int(self.values[key])))
+                self.surface.blit(text, (element.bar_rect.topright[0], element.bar_rect.topright[1] + 3))
 
     # -- Get attrs --
 
@@ -362,3 +484,6 @@ class Settings_Menu:
 
         for button in self.interactives:
             self.interactives[button].draw(self.surface)
+
+        if self.page in "tail flame blast":
+            self.draw_slider_page()

@@ -68,7 +68,12 @@ class Level:
         if self.settings:
             self.settings_menu.reset_menu({"bloom": self.player.tail_bloom, "gravity": self.player.apply_gravity,
                                            "flame": self.player.apply_flame, "blast": self.player.allow_hold_click,
-                                           "sound": self.sound, "fullscreen": self.fullscreen})
+                                           "sound": self.sound, "fullscreen": self.fullscreen,
+                                           "tail length/bloom speed": self.player.subtract_r,
+                                           "flame volume": self.player.flame_volume, "flame amplitude": self.player.flame_amplitude,
+                                           "flame rate": self.player.flame_speed,
+                                           "blast width": self.player.blast_width, "blast speed": self.player.blast_speed,
+                                           "blast duration": self.player.blast_duration})
         else:
             values = self.settings_menu.get_values()
             self.player.tail_bloom = values["bloom"]
@@ -77,6 +82,16 @@ class Level:
             self.player.allow_hold_click = values["blast"]
             self.sound = values["sound"]
             self.fullscreen = values["fullscreen"]
+
+            self.player.subtract_r = values["tail length/bloom speed"]
+
+            self.player.flame_volume = values["flame volume"]
+            self.player.flame_amplitude = values["flame amplitude"]
+            self.player.flame_speed = values["flame rate"]
+
+            self.player.blast_width = values["blast width"]
+            self.player.blast_speed = values["blast speed"]
+            self.player.blast_duration = values["blast duration"]
 
     def get_input(self):
         keys = pygame.key.get_pressed()
@@ -196,10 +211,11 @@ class Level:
                 self.settings_io()
 
             # - Settings menu -
-            self.settings_menu.update(mouse_pos)
-            if self.settings_menu.get_close() and self.settings:
-                self.settings = False
-                self.settings_io()
+            if self.settings:
+                self.settings_menu.update(mouse_pos)
+                if self.settings_menu.get_close() and self.settings:
+                    self.settings = False
+                    self.settings_io()
 
         # -- RENDER -- (back --> front)
         # Draw

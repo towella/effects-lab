@@ -117,37 +117,43 @@ class Toggle(Button):
 
 
 class Slider:
-    # naming images: 'bar', 'default slider', 'hover slider', 'clicked slider'
-    def __init__(self, bar_pos, bar_dimensions, slide_increment, slider_value, slider_y, slider_dimensions, bar_img_pos,
-                 images_folder_path, slider_img_offset=(0, 0), down=False, outline_hover=True, hover=False):
+    # naming images: 'bar', 'default slider', 'hover slider', 'down slider'
+    def __init__(self, bar_pos, bar_dimensions, slide_increment, slider_units, slider_value, slider_y, slider_dimensions,
+                 images_folder_path, slider_img_offset=(0, 0), bar_img_offset=(0, 0), outline_hover=True):
+        self.activated = False
+
         # bar length determines range of values on slider (in conjunction with slide_increment)
         self.bar_rect = pygame.Rect(bar_pos[0], bar_pos[1], bar_dimensions[0], bar_dimensions[1])  # bar bounds
         self.slide_increment = slide_increment  # how many pixels per value increase
 
-        x = self.bar_rect.x + self.slide_increment * slider_value
+        x = self.bar_rect.x + self.slide_increment * (slider_value // slider_units)
         self.slider_rect = pygame.Rect(x, slider_y, slider_dimensions[0], slider_dimensions[1])  # slider
-        self.value = slider_value
+        # ensure slider is on bar (value may be beyond range of slider, handle edge cases)
+        if self.slider_rect.right > self.bar_rect.right:
+            self.slider_rect.centerx = self.bar_rect.right
+        elif self.slider_rect.left < self.bar_rect.left:
+            self.slider_rect.centerx = self.bar_rect.left
 
-        self.bar_pos = bar_img_pos
+        self.value = slider_value
+        self.slider_units = slider_units
+
         self.slider_offset = slider_img_offset
+        self.bar_offset = bar_img_offset
         self.blit_offset = [0, 0]
 
-        self.down = down
         self.outline_hover = outline_hover
-        self.hover = hover
 
-        self.mouse = pygame.mouse.get_pos()
         self.clicked = pygame.mouse.get_pressed()[0]
 
-        self.images_dict = import_folder(images_folder_path)
+        self.images_dict = import_folder(resource_path(images_folder_path))
         self.image = self.images_dict['default slider']
 
     def get_value(self):
         return self.value
 
-    def mouse_hover(self):
-        if self.slider_rect.collidepoint(self.mouse[0], self.mouse[1]):
-            if self.hover:
+    def mouse_hover(self, mouse_pos):
+        if self.slider_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
+            if 'hover slider' in self.images_dict:
                 self.image = self.images_dict['hover slider']
             elif self.outline_hover:
                 self.image = outline_image(self.images_dict['default slider'])
@@ -157,29 +163,34 @@ class Slider:
         else:
             self.image = self.images_dict['default slider']
 
-    def mouse_click(self):
+    def mouse_click(self, mouse_pos):
         just_click = pygame.mouse.get_pressed()[0]  # produces three tuple: (b1, b2, b3). Norm click is b1
         # mouse down changes button image to down image
-        if self.bar_rect.collidepoint(self.mouse[0], self.mouse[1]) and self.clicked and self.down:
+        if self.bar_rect.collidepoint(mouse_pos[0], mouse_pos[1]) and self.clicked and "down slider" in self.images_dict:
+            self.activated = True
             self.image = self.images_dict['down slider']
             # move slider to mouse x if multiple of move increment
-            if (self.mouse[0] - self.bar_rect.left) % self.slide_increment == 0:
-                self.slider_rect.centerx = self.mouse[0]
+            if (mouse_pos[0] - self.bar_rect.left) % self.slide_increment == 0:
+                self.slider_rect.centerx = mouse_pos[0]
             # update value
-            self.value = (self.slider_rect.centerx - self.bar_rect.left) // self.slide_increment
+            self.value = (self.slider_rect.centerx - self.bar_rect.left) // self.slide_increment * self.slider_units
 
             self.blit_offset = [0, 0]  # prevents hover offset from being applied
+        else:
+            self.activated = False
 
-    def update(self):
+    def get_activated(self):
+        return self.activated
+
+    def update(self, mouse_pos):
         self.blit_offset = [0, 0]
-        self.mouse = pygame.mouse.get_pos()
-        self.mouse_hover()
-        self.mouse_click()
+        self.mouse_hover(mouse_pos)
+        self.mouse_click(mouse_pos)
         self.clicked = pygame.mouse.get_pressed()[0]
 
     def draw(self, surface):
         # bar
-        surface.blit(self.images_dict['bar'], self.bar_pos)
+        surface.blit(self.images_dict['bar'], (self.bar_rect.topleft[0] + self.bar_offset[0], self.bar_rect.topleft[1] + self.bar_offset[1]))
         # slider
         surface.blit(self.image, (self.slider_rect.x + self.slider_offset[0] + self.blit_offset[0],
                                   self.slider_rect.y + self.slider_offset[1] + self.blit_offset[1]))

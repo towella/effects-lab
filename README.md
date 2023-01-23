@@ -19,28 +19,31 @@ By Andrew Towell (2022 - 23)
 - Click "Open" to continue
 
 ## Controls
-| Key(s)            | Function                                      |
-|-------------------|-----------------------------------------------|
-| Move Mouse        | Move Orb                                      |
-| Right Click Mouse | Radial Blast                                  |
-|                   |                                               |
-| B                 | Toggle Tail Bloom                             |
-| G                 | Toggle Gravity                                |
-| F                 | Toggle Flame                                  |
-| H                 | Toggle Repeat Blast                           |
-|                   |                                               |
-| T/Shift + T       | Increase/Decrease Tail Length and Bloom Speed |
-|                   |                                               |
-| V/Shift + V       | Increase/Decrease Flame Volume                |
-| A/Shift + A       | Increase/Decrease Flame Amplitude             |
-| R/Shift + R       | Increase/Decrease Flame Rate                  |
-|                   |                                               |
-| W/Shift + W       | Increase/Decrease Blast Width                 |
-| S/Shift + S       | Increase/Decrease Blast Speed                 |
-| D/Shift + D       | Increase/Decrease Blast Duration              |
-|                   |                                               |
-| I                 | See Controls                                  |
-| O                 | Settings (control effect values more easily)  |
-| P                 | Pause                                         |
-| Tab               | Toggle Fullscreen                             |
-| ',' or ESC        | Quit                                          |
+It is strongly recommended these keyboard shortcuts are used over the settings menu for ease of use and
+to enable exploration of values and combinations that are not possible with the settings menu.
+
+| Key(s)      | Function                                      |
+|-------------|-----------------------------------------------|
+| Move Mouse  | Move Orb                                      |
+| Click Mouse | Radial Blast                                  |
+|             |                                               |
+| B           | Toggle Tail Bloom                             |
+| G           | Toggle Gravity                                |
+| F           | Toggle Flame                                  |
+| H           | Toggle Repeat Blast                           |
+|             |                                               |
+| T/Shift + T | Increase/Decrease Tail Length and Bloom Speed |
+|             |                                               |
+| V/Shift + V | Increase/Decrease Flame Volume                |
+| A/Shift + A | Increase/Decrease Flame Amplitude             |
+| R/Shift + R | Increase/Decrease Flame Rate                  |
+|             |                                               |
+| W/Shift + W | Increase/Decrease Blast Width                 |
+| S/Shift + S | Increase/Decrease Blast Speed                 |
+| D/Shift + D | Increase/Decrease Blast Duration              |
+|             |                                               |
+| I           | See Controls                                  |
+| O           | Settings                                      |
+| P           | Pause                                         |
+| Tab         | Toggle Full Screen                            |
+| ',' or ESC  | Quit                                          |
