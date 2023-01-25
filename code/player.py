@@ -30,6 +30,14 @@ class Player(pygame.sprite.Sprite):
         self.blast_speed = 533
         self.blast_duration = 214
 
+        # screen shake
+        self.apply_screen_shake = True
+        self.shake_pressed = False
+        self.screen_shake_max = 88
+        self.screen_shake_timer = 0
+        self.screen_shake = [0, 0]
+        self.max_screen_shake = 60
+
         # - hitbox -
         self.hitbox = pygame.Rect(spawn[0], spawn[1], self.start_radius, self.start_radius)
 
@@ -67,6 +75,7 @@ class Player(pygame.sprite.Sprite):
 # -- checks --
 
     def get_input(self, dt, mouse_pos, tiles):
+        self.screen_shake = [0, 0]
         self.direction.x = 0
         keys = pygame.key.get_pressed()
 
@@ -117,9 +126,16 @@ class Player(pygame.sprite.Sprite):
             self.click_effects.add(
                 Radial_Blast(self.blast_radius, self.blast_colour, (self.blast_width / 10), self.surface, mouse_pos,
                              (self.blast_speed / 100), self.blast_duration))
+            # screen shake
+            # reset timer to active
+            self.screen_shake_timer = 1
+
             self.mouse_clicked = True
         elif not pygame.mouse.get_pressed()[0]:
             self.mouse_clicked = False
+            # if not click and timer greater than max, reset to inactive
+            if self.screen_shake_timer > self.screen_shake_max:
+                self.screen_shake_timer = 0
 
         # blast width
         key = controls["+/- Blast Width"]
@@ -147,6 +163,23 @@ class Player(pygame.sprite.Sprite):
             self.blast_duration += 0.5 * dt
         if self.blast_duration < 0:
             self.blast_duration = 0
+
+        # --- SCREEN SHAKE CONTROLS ---
+        key = controls["+/- Shake Duration"]
+        if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.screen_shake_max -= 2 * dt
+        elif keys[key]:
+            self.screen_shake_max += 2 * dt
+        if self.screen_shake_max < 0:
+            self.screen_shake_max = 0
+
+        key = controls["+/- Shake Intensity"]
+        if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.max_screen_shake -= 2 * dt
+        elif keys[key]:
+            self.max_screen_shake += 2 * dt
+        if self.max_screen_shake < 0:
+            self.max_screen_shake = 0
 
         # --- TOGGLES ---
 
@@ -183,6 +216,15 @@ class Player(pygame.sprite.Sprite):
             self.allow_hold_pressed = True
         elif not keys[key]:
             self.allow_hold_pressed = False
+
+        # toggle screen shake
+        key = controls["Toggle Screen Shake"]
+        if keys[key] and not self.shake_pressed:
+            self.apply_screen_shake = not self.apply_screen_shake
+            self.shake_pressed = True
+            self.screen_shake_timer = 0
+        elif not keys[key]:
+            self.shake_pressed = False
 
 
 
@@ -355,8 +397,10 @@ class Player(pygame.sprite.Sprite):
     def sync_rect(self):
         self.rect.midbottom = self.hitbox.midbottom
 
-    def update(self, mouse_pos, dt, tiles):
+    def get_screen_shake(self):
+        return self.screen_shake
 
+    def update(self, mouse_pos, dt, tiles):
         self.sync_hitbox()  # just in case
 
         # -- INPUT --
@@ -384,6 +428,12 @@ class Player(pygame.sprite.Sprite):
         # -- CHECKS/UPDATE --
         for blast in self.click_effects:
             blast.update()
+
+        # if timer active and less than max, generate shake
+        if 0 < self.screen_shake_timer <= (self.screen_shake_max / 10) and self.apply_screen_shake:
+            self.screen_shake[0] = randint(-int(self.max_screen_shake / 10), int(self.max_screen_shake / 10))
+            self.screen_shake[1] = randint(-int(self.max_screen_shake / 10), int(self.max_screen_shake / 10))
+            self.screen_shake_timer += 1
 
         # - collision and movement -
         # applies direction to player then resyncs hitbox (included in most movement/collision functions)

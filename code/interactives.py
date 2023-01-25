@@ -55,6 +55,12 @@ class Button:
     def get_activated(self):
         return self.activated
 
+    def get_hover(self, mouse_pos):
+        if self.hitbox.collidepoint(mouse_pos[0], mouse_pos[1]):
+            return True
+        else:
+            return False
+
     def update(self, mouse_pos):
         self.blit_offset = [0, 0]
         self.mouse = mouse_pos

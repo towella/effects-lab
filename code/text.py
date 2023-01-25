@@ -29,7 +29,7 @@ class Font:
     def __init__(self, path, colour, numbers=False):
         self.letters, self.letter_spacing, self.line_height = load_font_img(resource_path(path), colour)
         if not numbers:
-            self.font_order = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','.','-',',',':','+','\'','!','?','0','1','2','3','4','5','6','7','8','9','(',')','/','_','=','\\','[',']','*','"','<','>',';']
+            self.font_order = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','.','-',',',':','+','\'','!','?','0','1','2','3','4','5','6','7','8','9','(',')','/','_','=','\\','[',']','*','"','<','>',';','@']
         else:
             self.font_order = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
         self.space_width = self.letter_spacing[0]  # width of 'A' character

@@ -1,5 +1,5 @@
 import pygame
-from game_data import controls, fonts
+from game_data import controls, fonts, version
 from support import resource_path, import_folder, center_object_x_surf, center_object_x
 from text import Font
 from interactives import *
@@ -28,7 +28,7 @@ class Drag_Menu(pygame.sprite.Sprite):
 
         x = 10  # starting padding
         y = 40  # starting padding
-        rows = 6
+        rows = 7
         columns = 3
         index = 0
         keys = list(controls)
@@ -227,12 +227,11 @@ class Settings_Menu:
         self.working_surf.blit(text, (center_x, y))
 
         y += y_increment
-        text = self.small_font.get_surf("Sound: ")
+        text = self.small_font.get_surf("Screen Shake: ")
         center_x = center_object_x(text.get_width() + switch_width, self.working_surf.get_width())
-        self.interactives["sound"] = Toggle(self.values["sound"],
+        self.interactives["screen shake"] = Toggle(self.values["screen shake"],
                                             (self.rect.topleft[0] + center_x + text.get_width(),
-                                             self.rect.topleft[1] + y - 3),
-                                            (switch_width, switch_height),
+                                             self.rect.topleft[1] + y - 3), (switch_width, switch_height),
                                             switch_path, (0, 0), False)
         self.working_surf.blit(text, (center_x, y))
 
@@ -264,7 +263,8 @@ class Settings_Menu:
         slider_path = "../assets/menus/settings/pages/tail/slider"
 
         text = self.small_font.get_surf("Tail Length/Bloom Speed: ")
-        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        value = self.small_font.get_surf("  " + str(int(self.values["tail length/bloom speed"])))
+        center_x = center_object_x(text.get_width() + slider_width + value.get_width(), self.working_surf.get_width())
         self.interactives["tail length/bloom speed"] = Slider((self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
                                                               (slider_width, 13), 1, 3, self.values["tail length/bloom speed"],
                                                               self.rect.topleft[1] + y - 3, (7, 13),
@@ -289,7 +289,8 @@ class Settings_Menu:
         slider_path = "../assets/menus/settings/pages/flame/slider"
 
         text = self.small_font.get_surf("Flame Volume: ")
-        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        value = self.small_font.get_surf("  " + str(int(self.values["flame volume"])))
+        center_x = center_object_x(text.get_width() + slider_width + value.get_width(), self.working_surf.get_width())
         self.interactives["flame volume"] = Slider(
             (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
             (slider_width, 13), 1, 2, self.values["flame volume"],
@@ -299,7 +300,8 @@ class Settings_Menu:
 
         y += y_increment
         text = self.small_font.get_surf("Flame Amplitude: ")
-        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        value = self.small_font.get_surf("  " + str(int(self.values["flame amplitude"])))
+        center_x = center_object_x(text.get_width() + slider_width + value.get_width(), self.working_surf.get_width())
         self.interactives["flame amplitude"] = Slider(
             (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
             (slider_width, 13), 1, 2, self.values["flame amplitude"],
@@ -309,7 +311,8 @@ class Settings_Menu:
 
         y += y_increment
         text = self.small_font.get_surf("Flame Rate: ")
-        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        value = self.small_font.get_surf("  " + str(int(self.values["flame rate"])))
+        center_x = center_object_x(text.get_width() + slider_width + value.get_width(), self.working_surf.get_width())
         self.interactives["flame rate"] = Slider(
             (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
             (slider_width, 13), 1, 8, self.values["flame rate"],
@@ -335,7 +338,8 @@ class Settings_Menu:
         slider_path = "../assets/menus/settings/pages/blast/slider"
 
         text = self.small_font.get_surf("Blast Speed: ")
-        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        value = self.small_font.get_surf("  " + str(int(self.values["blast speed"])))
+        center_x = center_object_x(text.get_width() + slider_width + value.get_width(), self.working_surf.get_width())
         self.interactives["blast speed"] = Slider(
             (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
             (slider_width, 13), 1, 20, self.values["blast speed"],
@@ -345,7 +349,8 @@ class Settings_Menu:
 
         y += y_increment
         text = self.small_font.get_surf("Blast Width: ")
-        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        value = self.small_font.get_surf("  " + str(int(self.values["blast width"])))
+        center_x = center_object_x(text.get_width() + slider_width + value.get_width(), self.working_surf.get_width())
         self.interactives["blast width"] = Slider(
             (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
             (slider_width, 13), 1, 10, self.values["blast width"],
@@ -355,10 +360,39 @@ class Settings_Menu:
 
         y += y_increment
         text = self.small_font.get_surf("Blast Duration: ")
-        center_x = center_object_x(text.get_width() + slider_width, self.working_surf.get_width())
+        value = self.small_font.get_surf("  " + str(int(self.values["blast duration"])))
+        center_x = center_object_x(text.get_width() + slider_width + value.get_width(), self.working_surf.get_width())
         self.interactives["blast duration"] = Slider(
             (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
             (slider_width, 13), 1, 8, self.values["blast duration"],
+            self.rect.topleft[1] + y - 3, (7, 13),
+            slider_path, (0, 0), (0, 6), False)
+        self.working_surf.blit(text, (center_x, y))
+
+        # ------------ SCREEN SHAKE ------------------------
+        y += y_increment * 1.5
+        # Setup menu text on image
+        title = self.large_font.get_surf("Screen Shake Modifiers", "black")
+        self.working_surf.blit(title, (center_object_x_surf(title, self.working_surf), y))
+
+        y += y_increment
+        text = self.small_font.get_surf("Screen Shake Duration: ")
+        value = self.small_font.get_surf("  " + str(int(self.values["shake duration"])))
+        center_x = center_object_x(text.get_width() + slider_width + value.get_width(), self.working_surf.get_width())
+        self.interactives["shake duration"] = Slider(
+            (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
+            (slider_width, 13), 1, 4, self.values["shake duration"],
+            self.rect.topleft[1] + y - 3, (7, 13),
+            slider_path, (0, 0), (0, 6), False)
+        self.working_surf.blit(text, (center_x, y))
+
+        y += y_increment
+        text = self.small_font.get_surf("Screen Shake Intensity: ")
+        value = self.small_font.get_surf("  " + str(int(self.values["shake intensity"])))
+        center_x = center_object_x(text.get_width() + slider_width + value.get_width(), self.working_surf.get_width())
+        self.interactives["shake intensity"] = Slider(
+            (self.rect.topleft[0] + center_x + text.get_width(), self.rect.topleft[1] + y - 3),
+            (slider_width, 13), 1, 4, self.values["shake intensity"],
             self.rect.topleft[1] + y - 3, (7, 13),
             slider_path, (0, 0), (0, 6), False)
         self.working_surf.blit(text, (center_x, y))
@@ -392,6 +426,8 @@ class Settings_Menu:
                 self.values["bloom"] = 1
         elif self.interactives["blast"].get_activated():
             self.values["blast"] = self.interactives["blast"].get_toggle()
+        elif self.interactives["screen shake"].get_activated():
+            self.values["screen shake"] = self.interactives["screen shake"].get_toggle()
         elif self.interactives["fullscreen"].get_activated():
             self.values["fullscreen"] = self.interactives["fullscreen"].get_toggle()
             pygame.display.toggle_fullscreen()
@@ -440,6 +476,11 @@ class Settings_Menu:
         elif self.interactives["blast duration"].get_activated():
             self.values["blast duration"] = self.interactives["blast duration"].get_value()
 
+        elif self.interactives["shake duration"].get_activated():
+            self.values["shake duration"] = self.interactives["shake duration"].get_value()
+        elif self.interactives["shake intensity"].get_activated():
+            self.values["shake intensity"] = self.interactives["shake intensity"].get_value()
+
     # ---------------------
 
     def draw_slider_page(self):
@@ -487,3 +528,92 @@ class Settings_Menu:
 
         if self.page in "tail flame blast":
             self.draw_slider_page()
+
+class Info_Menu:
+    def __init__(self, path, surface, y_pos):
+        resources = import_folder(resource_path(path))
+        self.surface = surface
+        self.img = resources["background"]
+        self.working_surf = self.img.copy()
+        self.rect = self.img.get_rect()
+        self.values = {}
+
+        self.close = False
+
+        # get menu pos with menu centered on x
+        width = self.rect.width
+        centered_x = center_object_x(width, self.surface.get_width())
+        self.rect.topleft = (centered_x, y_pos)
+
+        # buttons
+        self.interactives = {}
+
+        # fonts
+        self.small_font = Font(resource_path(fonts['small_font']), 'black')
+        self.large_font = Font(resource_path(fonts['large_font']), 'white')
+
+        self.page = ""
+        self.setup_main_page()
+
+    def get_close(self):
+        return self.close
+
+    def setup_main_page(self):
+        # Setup menu text on image
+        title = self.large_font.get_surf("About Effects Lab", "black")
+        self.working_surf.blit(title, (center_object_x_surf(title, self.working_surf), 10))
+
+        # -- Buttons --
+        self.interactives["close"] = Button((self.rect.topleft[0] + 10, self.rect.topleft[1] + 10), (9, 10),
+                                            "../assets/menus/settings/pages/main/close_button", (0, 0), False)
+
+        y_increment = 20
+        y = 40
+
+        # bottom disclaimer
+        text = self.small_font.get_surf("Made by Andrew Towell (Copyright 2023 Andrew Towell)")
+        self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), y))
+
+        y += y_increment
+        text = self.small_font.get_surf("Based on original idea by DaFluffyPotato")
+        self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), y))
+        y += y_increment * 0.5
+        text = self.small_font.get_surf("Youtube: https://www.youtube.com/@DaFluffyPotato")
+        self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), y))
+
+        y += y_increment
+        text = self.small_font.get_surf("This work is distributed under the MIT licence")
+        self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), y))
+        y += y_increment * 0.5
+        text = self.small_font.get_surf("(licence in distribution folder)")
+        self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), y))
+
+        y += y_increment
+        text = self.small_font.get_surf(f"Version: {version}")
+        self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), y))
+        y += y_increment * 0.5
+        text = self.small_font.get_surf("Inital Release: **/**/2023")
+        self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), y))
+
+
+    def main_page(self):
+        # close if button is pressed
+        if self.interactives["close"].get_activated():
+            self.close = True
+
+    def reset(self):
+        self.close = False
+
+    # returns if settings menu should be up or not
+    def update(self, mouse_pos):
+        # update page buttons
+        for button in self.interactives:
+            self.interactives[button].update(mouse_pos)
+
+        self.main_page()
+
+    def draw(self):
+        self.surface.blit(self.working_surf, self.rect.topleft)
+
+        for button in self.interactives:
+            self.interactives[button].draw(self.surface)

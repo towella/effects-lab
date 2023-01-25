@@ -10,7 +10,7 @@ from tiles import CollideableTile, HazardTile
 from player import Player
 from trigger import Trigger
 from spawn import Spawn
-from menus import Drag_Menu, Settings_Menu
+from menus import *
 from interactives import Button
 # - systems -
 from text import Font
@@ -43,6 +43,10 @@ class Level:
         self.settings_b = Button((self.screen_surface.get_width() - 27, 5), (22, 22), "../assets/buttons/settings",
                                  (0, 0), False)
         self.settings_menu = Settings_Menu("../assets/menus/settings", self.screen_surface, 20)
+        # - Info -
+        self.info_b = Button((5, 5), (22, 22), "../assets/buttons/info", (0, 0), False)
+        self.info = False
+        self.info_menu = Info_Menu("../assets/menus/info", self.screen_surface, 20)
         # - Controls -
         self.activate_controls_m = False
         self.activate_controls_pressed = False
@@ -68,19 +72,19 @@ class Level:
         if self.settings:
             self.settings_menu.reset_menu({"bloom": self.player.tail_bloom, "gravity": self.player.apply_gravity,
                                            "flame": self.player.apply_flame, "blast": self.player.allow_hold_click,
-                                           "sound": self.sound, "fullscreen": self.fullscreen,
+                                           "fullscreen": self.fullscreen,
                                            "tail length/bloom speed": self.player.subtract_r,
                                            "flame volume": self.player.flame_volume, "flame amplitude": self.player.flame_amplitude,
                                            "flame rate": self.player.flame_speed,
                                            "blast width": self.player.blast_width, "blast speed": self.player.blast_speed,
-                                           "blast duration": self.player.blast_duration})
+                                           "blast duration": self.player.blast_duration, "screen shake": self.player.apply_screen_shake,
+                                           "shake duration": self.player.screen_shake_max, "shake intensity": self.player.max_screen_shake})
         else:
             values = self.settings_menu.get_values()
             self.player.tail_bloom = values["bloom"]
             self.player.apply_gravity = values["gravity"]
             self.player.apply_flame = values["flame"]
             self.player.allow_hold_click = values["blast"]
-            self.sound = values["sound"]
             self.fullscreen = values["fullscreen"]
 
             self.player.subtract_r = values["tail length/bloom speed"]
@@ -93,10 +97,14 @@ class Level:
             self.player.blast_speed = values["blast speed"]
             self.player.blast_duration = values["blast duration"]
 
+            self.player.apply_screen_shake = values["screen shake"]
+            self.player.screen_shake_max = values["shake duration"]
+            self.player.max_screen_shake = values["shake intensity"]
+
     def get_input(self):
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_TAB] and not self.settings:
+        if keys[pygame.K_TAB] and not self.settings and not self.info:
             if not self.fullscreen_pressed:
                 pygame.display.toggle_fullscreen()
                 self.pause = True
@@ -106,7 +114,7 @@ class Level:
             self.fullscreen_pressed = False
 
         # pause menu
-        if keys[controls["Pause"]] and not self.settings:
+        if keys[controls["Pause"]] and not self.settings and not self.info:
             if not self.pause_pressed:
                 self.pause = not self.pause
             self.pause_pressed = True
@@ -114,7 +122,7 @@ class Level:
             self.pause_pressed = False
 
         # settings menu
-        if keys[controls["Settings"]] and not self.pause:
+        if keys[controls["Settings"]] and not self.pause and not self.info:
             if not self.settings_pressed:
                 self.settings = not self.settings
                 self.settings_io()
@@ -123,7 +131,7 @@ class Level:
             self.settings_pressed = False
 
         # bring up/down controls menu
-        if keys[controls["Controls"]] and not self.activate_controls_pressed and not self.pause and not self.settings:
+        if keys[controls["Controls"]] and not self.activate_controls_pressed and not self.pause and not self.settings and not self.info:
             self.activate_controls_pressed = True
             # if was active, make inactive
             if self.activate_controls_m:
@@ -167,6 +175,9 @@ class Level:
 
 # -------------------------------------------------------------------------------- #
 
+    def get_screen_shake(self):
+        return self.player.get_screen_shake()
+
     # updates the level allowing tile scroll and displaying tiles to screen
     # order is equivalent of layers
     def update(self, dt, mouse_pos):
@@ -179,7 +190,7 @@ class Level:
 
         # -- CHECKS (For the previous frame)  --
         if not self.pause:
-            if not self.settings:
+            if not self.settings and not self.info:
                 # checks if the player needs to respawn and therefore needs to focus on the player
                 '''if player.get_respawn():
                     self.camera.focus(True)'''
@@ -206,9 +217,12 @@ class Level:
 
             # - Settings button -
             self.settings_b.update(mouse_pos)
-            if self.settings_b.get_activated():
+            if self.settings_b.get_activated() and not self.info:
                 self.settings = not self.settings
                 self.settings_io()
+            elif self.settings_b.get_hover(mouse_pos):
+                self.player.screen_shake_timer = 0
+                self.player.screen_shake = [0, 0]
 
             # - Settings menu -
             if self.settings:
@@ -216,6 +230,21 @@ class Level:
                 if self.settings_menu.get_close() and self.settings:
                     self.settings = False
                     self.settings_io()
+
+            # - Info button -
+            self.info_b.update(mouse_pos)
+            if self.info_b.get_activated() and not self.settings:
+                self.info = not self.info
+                self.info_menu.update(mouse_pos)
+            elif self.info_b.get_hover(mouse_pos):
+                self.player.screen_shake_timer = 0
+                self.player.screen_shake = [0, 0]
+
+            if self.info:
+                self.info_menu.update(mouse_pos)
+                if self.info_menu.get_close() and self.info:
+                    self.info = False
+                    self.info_menu.reset()
 
         # -- RENDER -- (back --> front)
         # Draw
@@ -228,6 +257,7 @@ class Level:
         self.mask_surf.set_colorkey('black')
 
         self.settings_b.draw(self.screen_surface)
+        self.info_b.draw(self.screen_surface)
 
         self.controls_m.draw()
 
@@ -236,6 +266,11 @@ class Level:
             pause_surf.fill((20, 20, 20))
             self.screen_surface.blit(pause_surf, (0, 0), special_flags=pygame.BLEND_RGB_SUB)
             self.settings_menu.draw()
+        elif self.info:
+            pause_surf = pygame.Surface((self.screen_surface.get_width(), self.screen_surface.get_height()))
+            pause_surf.fill((20, 20, 20))
+            self.screen_surface.blit(pause_surf, (0, 0), special_flags=pygame.BLEND_RGB_SUB)
+            self.info_menu.draw()
 
         if self.pause:
             self.pause_menu()
