@@ -20,7 +20,7 @@ class Button:
         self.activated = False
 
         # import images from button folder
-        self.images_dict = import_folder(resource_path(images_folder_path))
+        self.images_dict = import_folder(images_folder_path)
         # If not a toggle, act as normal. Otherwise set image to a switch default so it can be reset later in the init proper
         if "true" not in self.images_dict:
             self.image = self.images_dict['default']
@@ -151,7 +151,7 @@ class Slider:
 
         self.clicked = pygame.mouse.get_pressed()[0]
 
-        self.images_dict = import_folder(resource_path(images_folder_path))
+        self.images_dict = import_folder(images_folder_path)
         self.image = self.images_dict['default slider']
 
     def get_value(self):
