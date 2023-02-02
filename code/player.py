@@ -3,7 +3,6 @@ from game_data import tile_size, scaling_factor, controls
 from random import randint
 from math import sin
 from visual_FX import Radial_Blast
-from lighting import Light
 from support import pos_for_center
 
 # SET UP FOR PLATFORMER SINCE PLATFORMERS ARE HARDER TO CREATE A PLAYER FOR
@@ -29,6 +28,14 @@ class Player(pygame.sprite.Sprite):
         self.blast_width = 123
         self.blast_speed = 533
         self.blast_duration = 214
+
+        # screen shake
+        self.apply_screen_shake = True
+        self.shake_pressed = False
+        self.screen_shake_max = 88
+        self.screen_shake_timer = 0
+        self.screen_shake = [0, 0]
+        self.max_screen_shake = 60
 
         # - hitbox -
         self.hitbox = pygame.Rect(spawn[0], spawn[1], self.start_radius, self.start_radius)
@@ -67,6 +74,7 @@ class Player(pygame.sprite.Sprite):
 # -- checks --
 
     def get_input(self, dt, mouse_pos, tiles):
+        self.screen_shake = [0, 0]
         self.direction.x = 0
         keys = pygame.key.get_pressed()
 
@@ -117,9 +125,16 @@ class Player(pygame.sprite.Sprite):
             self.click_effects.add(
                 Radial_Blast(self.blast_radius, self.blast_colour, (self.blast_width / 10), self.surface, mouse_pos,
                              (self.blast_speed / 100), self.blast_duration))
+            # screen shake
+            # reset timer to active
+            self.screen_shake_timer = 1
+
             self.mouse_clicked = True
         elif not pygame.mouse.get_pressed()[0]:
             self.mouse_clicked = False
+            # if not click and timer greater than max, reset to inactive
+            if self.screen_shake_timer > self.screen_shake_max:
+                self.screen_shake_timer = 0
 
         # blast width
         key = controls["+/- Blast Width"]
@@ -147,6 +162,23 @@ class Player(pygame.sprite.Sprite):
             self.blast_duration += 0.5 * dt
         if self.blast_duration < 0:
             self.blast_duration = 0
+
+        # --- SCREEN SHAKE CONTROLS ---
+        key = controls["+/- Shake Duration"]
+        if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.screen_shake_max -= 2 * dt
+        elif keys[key]:
+            self.screen_shake_max += 2 * dt
+        if self.screen_shake_max < 0:
+            self.screen_shake_max = 0
+
+        key = controls["+/- Shake Intensity"]
+        if keys[key] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.max_screen_shake -= 2 * dt
+        elif keys[key]:
+            self.max_screen_shake += 2 * dt
+        if self.max_screen_shake < 0:
+            self.max_screen_shake = 0
 
         # --- TOGGLES ---
 
@@ -184,6 +216,15 @@ class Player(pygame.sprite.Sprite):
         elif not keys[key]:
             self.allow_hold_pressed = False
 
+        # toggle screen shake
+        key = controls["Toggle Screen Shake"]
+        if keys[key] and not self.shake_pressed:
+            self.apply_screen_shake = not self.apply_screen_shake
+            self.shake_pressed = True
+            self.screen_shake_timer = 0
+        elif not keys[key]:
+            self.shake_pressed = False
+
 
 
     # - respawn -
@@ -209,117 +250,6 @@ class Player(pygame.sprite.Sprite):
         self.respawn = False
 
 # -- update methods --
-
-    # checks collision for a given hitbox against given tiles on the x
-    def collision_x(self, hitbox, tiles):
-        collision_offset = [0, 0]  # position hitbox is to be corrected to after checks
-        self.on_wall = False
-
-        top = False
-        top_margin = False
-        bottom = False
-        bottom_margin = False
-
-        for tile in tiles:
-            if tile.hitbox.colliderect(hitbox):
-                # - normal collision checks -
-                # abs ensures only the desired side registers collision
-                # not having collisions dependant on status allows hitboxes to change size
-                if abs(tile.hitbox.right - hitbox.left) < self.collision_tolerance:
-                    collision_offset[0] = tile.hitbox.right - hitbox.left
-                    self.on_wall_right = False  # which side is player clinging?
-                elif abs(tile.hitbox.left - hitbox.right) < self.collision_tolerance:
-                    collision_offset[0] = tile.hitbox.left - hitbox.right
-                    self.on_wall_right = True  # which side is player clinging?
-
-                #- horizontal corner correction - (for both side collisions)
-
-                # checking allowed to corner correct
-                # Use a diagram. Please
-                # checks if the relevant horizontal raycasts on the player hitbox are within a tile or not
-                # this allows determination as to whether on the end of a column of tiles or not
-
-                # top
-                if tile.hitbox.top <= hitbox.top <= tile.hitbox.bottom:
-                    top = True
-                if tile.hitbox.top <= hitbox.top + self.corner_correction <= tile.hitbox.bottom:
-                    top_margin = True
-                # stores tile for later potential corner correction
-                if hitbox.top < tile.hitbox.bottom < hitbox.top + self.corner_correction:
-                    collision_offset[1] = tile.hitbox.bottom - hitbox.top
-
-                # bottom
-                if tile.hitbox.top <= hitbox.bottom <= tile.hitbox.bottom:
-                    bottom = True
-                if tile.hitbox.top <= hitbox.bottom - self.corner_correction <= tile.hitbox.bottom:
-                    bottom_margin = True
-                if hitbox.bottom > tile.hitbox.top > hitbox.bottom - self.corner_correction:
-                    collision_offset[1] = -(hitbox.bottom - tile.hitbox.top)
-
-        # -- application of offsets --
-        # must occur after checks so that corner correction can check every contacted tile
-        # without movement of hitbox half way through checks
-        # - collision correction -
-        hitbox.x += collision_offset[0]
-        # - corner correction -
-        # adding velocity requirement prevents correction when just walking towards a wall. Only works at a higher
-        # velocity like during a dash or if the player is boosted.
-        if ((top and not top_margin) or (bottom and not bottom_margin)) and abs(self.direction.x) >= self.dash_speed:
-            hitbox.y += collision_offset[1]
-
-        self.sync_rect()
-
-    # checks collision for a given hitbox against given tiles on the y
-    def collision_y(self, hitbox, tiles):
-        collision_offset = [0, 0]
-
-        left = False
-        left_margin = False
-        right = False
-        right_margin = False
-
-        bonk = False
-
-        for tile in tiles:
-            if tile.hitbox.colliderect(hitbox):
-                # abs ensures only the desired side registers collision
-                if abs(tile.hitbox.top - hitbox.bottom) < self.collision_tolerance:
-                    collision_offset[1] = tile.hitbox.top - hitbox.bottom
-                # collision with bottom of tile
-                elif abs(tile.hitbox.bottom - hitbox.top) < self.collision_tolerance:
-                    collision_offset[1] = tile.hitbox.bottom - hitbox.top
-
-                    # - vertical corner correction - (only for top, not bottom collision)
-                    # left
-                    if tile.hitbox.left <= hitbox.left <= tile.hitbox.right:
-                        left = True
-                    if tile.hitbox.left <= hitbox.left + self.corner_correction <= tile.hitbox.right:
-                        left_margin = True
-                    if hitbox.left < tile.hitbox.right < hitbox.left + self.corner_correction:
-                        collision_offset[0] = tile.hitbox.right - hitbox.left
-
-                    # right
-                    if tile.hitbox.left <= hitbox.right <= tile.hitbox.right:
-                        right = True
-                    if tile.hitbox.left <= hitbox.right - self.corner_correction <= tile.hitbox.right:
-                        right_margin = True
-                    if hitbox.right > tile.hitbox.left > hitbox.right - self.corner_correction:
-                        collision_offset[0] = -(hitbox.right - tile.hitbox.left)
-
-                    bonk = True
-
-        # -- application of offsets --
-        # - normal collisions -
-        hitbox.y += collision_offset[1]
-        # - corner correction -
-        if (left and not left_margin) or (right and not right_margin):
-            hitbox.x += collision_offset[0]
-        # drop by zeroing upwards velocity if corner correction isn't necessary and hit bottom of tile
-        elif bonk:
-            self.direction.y = 0
-
-        # resyncs up rect to the hitbox
-        self.sync_rect()
 
     def apply_x_direction(self, dt):
         x_move = round(self.direction.x * dt)
@@ -355,8 +285,10 @@ class Player(pygame.sprite.Sprite):
     def sync_rect(self):
         self.rect.midbottom = self.hitbox.midbottom
 
-    def update(self, mouse_pos, dt, tiles):
+    def get_screen_shake(self):
+        return self.screen_shake
 
+    def update(self, mouse_pos, dt, tiles):
         self.sync_hitbox()  # just in case
 
         # -- INPUT --
@@ -385,12 +317,11 @@ class Player(pygame.sprite.Sprite):
         for blast in self.click_effects:
             blast.update()
 
-        # - collision and movement -
-        # applies direction to player then resyncs hitbox (included in most movement/collision functions)
-        # HITBOX MUST BE SYNCED AFTER EVERY MOVE OF PLAYER RECT
-        # x and y collisions are separated to make diagonal collisions easier and simpler to handle
-        self.collision_x(self.hitbox, tiles)
-        self.collision_y(self.hitbox, tiles)
+        # if timer active and less than max, generate shake
+        if 0 < self.screen_shake_timer <= (self.screen_shake_max / 10) and self.apply_screen_shake:
+            self.screen_shake[0] = randint(-int(self.max_screen_shake / 10), int(self.max_screen_shake / 10))
+            self.screen_shake[1] = randint(-int(self.max_screen_shake / 10), int(self.max_screen_shake / 10))
+            self.screen_shake_timer += 1
 
 # -- visual methods --
 

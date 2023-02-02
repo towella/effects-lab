@@ -1,7 +1,8 @@
-# blob-procedural-animation-test
-Test proof-of-concept game made with pygame that generates procedural effects
-
-By Andrew Towell (2022 - 23)
+# Effects Lab
+Test proof-of-concept game made with pygame that generates procedural effects  
+Copyright 2023 Andrew Towell  
+Version: 1.0.0 (Beta)  
+Inital Version Release: 02/02/2023
 
 ## Main File
 - main.py
@@ -31,6 +32,7 @@ to enable exploration of values and combinations that are not possible with the 
 | G           | Toggle Gravity                                |
 | F           | Toggle Flame                                  |
 | H           | Toggle Repeat Blast                           |
+| J           | Toggle Screen Shake                           |
 |             |                                               |
 | T/Shift + T | Increase/Decrease Tail Length and Bloom Speed |
 |             |                                               |
@@ -41,6 +43,8 @@ to enable exploration of values and combinations that are not possible with the 
 | W/Shift + W | Increase/Decrease Blast Width                 |
 | S/Shift + S | Increase/Decrease Blast Speed                 |
 | D/Shift + D | Increase/Decrease Blast Duration              |
+| Z/Shift + Z | Increase/Decrease Screen Shake Duration       |
+| X/Shift + X | Increase/Decrease Screen Shake Intensity      |
 |             |                                               |
 | I           | See Controls                                  |
 | O           | Settings                                      |

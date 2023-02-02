@@ -36,14 +36,8 @@ screen = pygame.Surface((screen_width, screen_height))  # the display surface, r
 screen_rect = screen.get_rect()  # used for camera scroll boundaries
 
 # caption and icon
-pygame.display.set_caption('Effects Lab -- by Andrew Towell')
+pygame.display.set_caption('Effects Lab')
 pygame.display.set_icon(pygame.image.load(resource_path('../assets/icon/app_icon.png')))
-
-# controller
-pygame.joystick.init()
-joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
-for joystick in joysticks:
-    joystick.init()
 
 # font
 font = Font(fonts['small_font'], 'white')
@@ -102,10 +96,17 @@ def game():
                     sys.exit()
 
         # -- Update --
+        window.fill("black")  # neccessary to prevent screen shake revealing previous frames on window
         screen.fill('white')
+
+        if not pygame.display.get_active():
+            level.invoke_pause()
+
         level.update(dt, mouse_pos)  # runs level processes
 
-        window.blit(pygame.transform.scale(screen, window.get_rect().size), (0, 0))  # scale screen to window
+        screen_shake = level.get_screen_shake()
+        # scale screen to window and blit
+        window.blit(pygame.transform.scale(screen, window.get_rect().size), (0 + screen_shake[0], 0 + screen_shake[1]))
 
         # -- Render --
         pygame.display.update()
