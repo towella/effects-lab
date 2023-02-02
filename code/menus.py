@@ -10,7 +10,7 @@ from interactives import *
 class Drag_Menu(pygame.sprite.Sprite):
     def __init__(self, path, surface, drag_rect, menu_pos):
         super().__init__()
-        resources = import_folder(resource_path(path))
+        resources = import_folder(path)
         self.surface = surface
         self.img = resources["background"]
         self.rect = self.img.get_rect()
@@ -19,8 +19,8 @@ class Drag_Menu(pygame.sprite.Sprite):
         self.button_down = False
 
         # fonts
-        self.small_font = Font(resource_path(fonts['small_font']), 'black')
-        self.large_font = Font(resource_path(fonts['large_font']), 'white')
+        self.small_font = Font(fonts['small_font'], 'black')
+        self.large_font = Font(fonts['large_font'], 'white')
 
         # Setup menu text on image
         title = self.large_font.get_surf("Controls", "black")
@@ -88,7 +88,7 @@ class Drag_Menu(pygame.sprite.Sprite):
 
 class Settings_Menu:
     def __init__(self, path, surface, y_pos):
-        resources = import_folder(resource_path(path))
+        resources = import_folder(path)
         self.surface = surface
         self.img = resources["background"]
         self.working_surf = self.img.copy()
@@ -106,8 +106,8 @@ class Settings_Menu:
         self.interactives = {}
 
         # fonts
-        self.small_font = Font(resource_path(fonts['small_font']), 'black')
-        self.large_font = Font(resource_path(fonts['large_font']), 'white')
+        self.small_font = Font(fonts['small_font'], 'black')
+        self.large_font = Font(fonts['large_font'], 'white')
 
         self.page = ""
         self.setup_main_page()
@@ -531,7 +531,7 @@ class Settings_Menu:
 
 class Info_Menu:
     def __init__(self, path, surface, y_pos):
-        resources = import_folder(resource_path(path))
+        resources = import_folder(path)
         self.surface = surface
         self.img = resources["background"]
         self.working_surf = self.img.copy()
@@ -549,8 +549,8 @@ class Info_Menu:
         self.interactives = {}
 
         # fonts
-        self.small_font = Font(resource_path(fonts['small_font']), 'black')
-        self.large_font = Font(resource_path(fonts['large_font']), 'white')
+        self.small_font = Font(fonts['small_font'], 'black')
+        self.large_font = Font(fonts['large_font'], 'white')
 
         self.page = ""
         self.setup_main_page()
@@ -592,7 +592,7 @@ class Info_Menu:
         text = self.small_font.get_surf(f"Version: {version}")
         self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), y))
         y += y_increment * 0.5
-        text = self.small_font.get_surf("Inital Release: **/**/2023")
+        text = self.small_font.get_surf("Inital Release: **/02/2023")
         self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), y))
 
 

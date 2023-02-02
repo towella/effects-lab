@@ -1,15 +1,11 @@
 # - libraries -
 import pygame
-from pytmx.util_pygame import load_pygame  # allows use of tiled tile map files for pygame use
 # - general -
 from game_data import tile_size, controls, fonts
 from support import *
 # - tiles -
-from tiles import CollideableTile, HazardTile
 # - objects -
 from player import Player
-from trigger import Trigger
-from spawn import Spawn
 from menus import *
 from interactives import Button
 # - systems -
@@ -63,8 +59,8 @@ class Level:
         self.player = Player(mouse_pos, self.mask_surf)
 
         # text setup
-        self.small_font = Font(resource_path(fonts['small_font']), 'white')
-        self.large_font = Font(resource_path(fonts['large_font']), 'white')
+        self.small_font = Font(fonts['small_font'], 'white')
+        self.large_font = Font(fonts['large_font'], 'white')
 
 # -- check methods --
 

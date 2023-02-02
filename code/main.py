@@ -39,12 +39,6 @@ screen_rect = screen.get_rect()  # used for camera scroll boundaries
 pygame.display.set_caption('Effects Lab')
 pygame.display.set_icon(pygame.image.load(resource_path('../assets/icon/app_icon.png')))
 
-# controller
-pygame.joystick.init()
-joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
-for joystick in joysticks:
-    joystick.init()
-
 # font
 font = Font(fonts['small_font'], 'white')
 

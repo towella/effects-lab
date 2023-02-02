@@ -51,6 +51,7 @@ def import_folder(path):
                     surface_dict[image] = image_surface
                     break  # breaks from checking allowed file types
         return surface_dict
+    return surface_dict
 
 
 # imports level csvs and returns workable list of lists
