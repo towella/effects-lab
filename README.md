@@ -2,7 +2,7 @@
 Test proof-of-concept game made with pygame that generates procedural effects  
 Copyright 2023 Andrew Towell  
 Version: 1.0.0 (Beta)  
-Inital Version Release: 02/02/2023
+Inital Version Release: 03/02/2023
 
 ## Main File
 - main.py
