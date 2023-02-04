@@ -39,6 +39,11 @@ class Level:
         self.settings_b = Button((self.screen_surface.get_width() - 27, 5), (22, 22), "../assets/buttons/settings",
                                  (0, 0), False)
         self.settings_menu = Settings_Menu("../assets/menus/settings", self.screen_surface, 20)
+        # - Reset -
+        self.reset = False
+        self.reset_pressed = False
+        self.reset_b = Button((self.screen_surface.get_width() - 54, 5), (22, 22), "../assets/buttons/reset",
+                              (0, 0), False)
         # - Info -
         self.info_b = Button((5, 5), (22, 22), "../assets/buttons/info", (0, 0), False)
         self.info = False
@@ -236,11 +241,17 @@ class Level:
                 self.player.screen_shake_timer = 0
                 self.player.screen_shake = [0, 0]
 
+            # - Info memu -
             if self.info:
                 self.info_menu.update(mouse_pos)
                 if self.info_menu.get_close() and self.info:
                     self.info = False
                     self.info_menu.reset()
+
+            # - Reset button -
+            self.reset_b.update(mouse_pos)
+            if self.reset_b.get_activated() and not self.settings and not self.pause:
+                self.reset = True
 
         # -- RENDER -- (back --> front)
         # Draw
@@ -254,6 +265,7 @@ class Level:
 
         self.settings_b.draw(self.screen_surface)
         self.info_b.draw(self.screen_surface)
+        self.reset_b.draw(self.screen_surface)
 
         self.controls_m.draw()
 
@@ -267,6 +279,9 @@ class Level:
             pause_surf.fill((20, 20, 20))
             self.screen_surface.blit(pause_surf, (0, 0), special_flags=pygame.BLEND_RGB_SUB)
             self.info_menu.draw()
+        elif self.reset:
+            self.player.player_reset()
+            self.reset = False
 
         if self.pause:
             self.pause_menu()

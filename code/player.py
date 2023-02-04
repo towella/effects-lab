@@ -14,28 +14,31 @@ class Player(pygame.sprite.Sprite):
         # -- player setup --
         self.start_radius = 20
         self.rect = pygame.Rect(spawn[0], spawn[1], self.start_radius, self.start_radius)
+        self.default_vals = {"subtract r": 40, "blast width": 123, "blast speed": 533,
+                             "blast duration": 214, "screen shake max": 88, "max screen shake": 60,
+                             "flame amplitude": 10, "flame speed": 200, "flame volume": 20}
 
         # circle = (radius, (posx, posy)) <- pos is top left NOT center
         self.circles = [[self.start_radius, [self.rect.centerx, self.rect.centery]]]
         self.smallest_circle = 6
         self.largest_circle = 500
-        self.subtract_r = 40  # (x100)
+        self.subtract_r = self.default_vals["subtract r"]  # (x100)
 
         # radial effects
         self.click_effects = pygame.sprite.Group()
         self.blast_radius = 15
         self.blast_colour = 'white'
-        self.blast_width = 123
-        self.blast_speed = 533
-        self.blast_duration = 214
+        self.blast_width = self.default_vals["blast width"]
+        self.blast_speed = self.default_vals["blast speed"]
+        self.blast_duration = self.default_vals["blast duration"]
 
         # screen shake
         self.apply_screen_shake = True
         self.shake_pressed = False
-        self.screen_shake_max = 88
+        self.screen_shake_max = self.default_vals["screen shake max"]
         self.screen_shake_timer = 0
         self.screen_shake = [0, 0]
-        self.max_screen_shake = 60
+        self.max_screen_shake = self.default_vals["max screen shake"]
 
         # - hitbox -
         self.hitbox = pygame.Rect(spawn[0], spawn[1], self.start_radius, self.start_radius)
@@ -59,9 +62,9 @@ class Player(pygame.sprite.Sprite):
 
         # - Tail Flame -
         self.flamey = 3  # flame tail size (constant upward force)
-        self.flame_amplitude = 10  # flame tail x force constant
-        self.flame_speed = 200  # speed of flame sine wave  (x1000)
-        self.flame_volume = 20  # amount of x randomness per particle
+        self.flame_amplitude = self.default_vals["flame amplitude"]  # flame tail x force constant
+        self.flame_speed = self.default_vals["flame speed"]  # speed of flame sine wave  (x1000)
+        self.flame_volume = self.default_vals["flame volume"]  # amount of x randomness per particle
         self.flame_timer = 0
         self.apply_flame = False
         self.flame_pressed = False
@@ -225,29 +228,18 @@ class Player(pygame.sprite.Sprite):
         elif not keys[key]:
             self.shake_pressed = False
 
-
-
     # - respawn -
 
-    def invoke_respawn(self):
-        self.respawn = True
-
-    def get_respawn(self):
-        return self.respawn
-
-    def player_respawn(self, spawn):
-        self.rect.x, self.rect.y = spawn.x, spawn.y  # set position to respawn point
-        self.sync_hitbox()
-        if spawn.player_facing == 'right':
-            self.facing_right = 1
-        else:
-            self.facing_right = -1
-        self.direction = pygame.math.Vector2(0, 0)  # reset movement
-        self.dashing = False  # end any dashes on respawn
-        self.dash_timer = self.dash_max  # prevent dash immediately on reset
-        self.crouching = False  # end any crouching on respawn
-        self.jumping = False  # end any jumps on respawn
-        self.respawn = False
+    def player_reset(self):
+        self.subtract_r = self.default_vals["subtract r"]
+        self.blast_width = self.default_vals["blast width"]
+        self.blast_speed = self.default_vals["blast speed"]
+        self.blast_duration = self.default_vals["blast duration"]
+        self.screen_shake_max = self.default_vals["screen shake max"]
+        self.max_screen_shake = self.default_vals["max screen shake"]
+        self.flame_amplitude = self.default_vals["flame amplitude"]
+        self.flame_speed = self.default_vals["flame speed"]
+        self.flame_volume = self.default_vals["flame volume"]
 
 # -- update methods --
 

@@ -1,6 +1,6 @@
 import pygame
 
-version = "1.0.0"
+version = "1.1.0 (beta)"
 
 tile_size = 16  # keep to prevent errors, even if game doesnt need tiles
 screen_width = 480  #31 * tile_size  # arbitrary
