@@ -231,6 +231,7 @@ class Player(pygame.sprite.Sprite):
     # - respawn -
 
     def player_reset(self):
+        self.tail_bloom = 1
         self.subtract_r = self.default_vals["subtract r"]
         self.blast_width = self.default_vals["blast width"]
         self.blast_speed = self.default_vals["blast speed"]

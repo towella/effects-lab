@@ -1,5 +1,5 @@
 import pygame
-from game_data import controls, fonts, version
+from game_data import controls, fonts, version, release
 from support import resource_path, import_folder, center_object_x_surf, center_object_x
 from text import Font
 from interactives import *
@@ -529,6 +529,7 @@ class Settings_Menu:
         if self.page in "tail flame blast":
             self.draw_slider_page()
 
+
 class Info_Menu:
     def __init__(self, path, surface, y_pos):
         resources = import_folder(path)
@@ -592,7 +593,7 @@ class Info_Menu:
         text = self.small_font.get_surf(f"Version: {version}")
         self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), y))
         y += y_increment * 0.5
-        text = self.small_font.get_surf("Inital Release: **/02/2023")
+        text = self.small_font.get_surf(f"Inital Release: {release}")
         self.working_surf.blit(text, (center_object_x_surf(text, self.working_surf), y))
 
 

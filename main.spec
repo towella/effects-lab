@@ -44,7 +44,7 @@ exe = EXE(
 )
 app = BUNDLE(
     exe,
-    name='Effects Lab (beta).app',
+    name='Effects Lab.app',
     icon='assets/icon/app_icon.icns',
     bundle_identifier=None,
 )
